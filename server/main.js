@@ -1,6 +1,29 @@
 import { Meteor } from 'meteor/meteor';
 
+var urlPath, args;
+
+function init(){
+   Github.getRepoList();
+   /*
+   JekPage.getRepoList();
+   Slack.getRepoList();
+   Facebook.getRepoList();
+   Twitter.getRepoList();
+   Vimeo.getRepoList();
+   Linkedin.getRepoList();
+   Flickr.getRepoList();
+   */
+}
+
 
 Meteor.startup(() => {
-  // code to run on server at startup
+  init();
+});
+
+Meteor.methods({
+
+
+
+
+
 });

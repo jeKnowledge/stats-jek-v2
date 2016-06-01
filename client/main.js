@@ -5,9 +5,14 @@ import './main.html';
 
 Template.body.helpers({
 
+  github : function(){
+   return GitHubCollection.find();
+  },
+/*
 	 facebook : function(){
 	 	return FbookCollection.find();
 	 },
+
 	 slack : function(){
 	 	return SlackCollection.find();
 	 },
@@ -16,11 +21,20 @@ Template.body.helpers({
 	 	return TwitterCollection.find();
 	 },
 
-	 github : function(){
-	 	return GitHubCollection.find();
-	 },
-
 	 jekPage : function(){
 	 	return JekPageCollection.find();
-	 }	
+  },
+
+   vimeo : function(){
+    return VimeoCollection.find();
+  },
+
+   flickr : function(){
+    return FlickrCollection.find();
+  },
+
+   linkedin : function(){
+    return LinkedinCollection.find();
+  }*/
+
 });
