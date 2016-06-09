@@ -3,7 +3,9 @@ import { Meteor } from 'meteor/meteor';
 var urlPath, args;
 
 function init(){
-   Github.getRepoList();
+  GitHubCollection.remove({});
+   Github.callStats();
+   //TODO: METHOD THAT UPDATES STATES EACH DAY AT 5:30 AM
    /*
    JekPage.getRepoList();
    Slack.getRepoList();
@@ -11,7 +13,6 @@ function init(){
    Twitter.getRepoList();
    Vimeo.getRepoList();
    Linkedin.getRepoList();
-   Flickr.getRepoList();
    */
 }
 
