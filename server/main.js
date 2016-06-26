@@ -4,7 +4,9 @@ var urlPath, args;
 
 function init(){
   GitHubCollection.remove({});
-   Github.callStats();
+  VimeoCollection.remove({});
+  Github.callStats();
+  //Vimeo.callStats();
    //TODO: METHOD THAT UPDATES STATES EACH DAY AT 5:30 AM
    /*
    JekPage.getRepoList();

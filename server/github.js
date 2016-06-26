@@ -25,7 +25,7 @@ class Repository {
     this.name = new String();
     this.programLanguage = new String();
     this.sizeKB = 0;
-    this.description = "Não Tem Descrição";
+    this.description = new String();
     this.gitUrl = new String();
     this.createdAt = new Date();
     this.numberWatchers = 0;
@@ -62,7 +62,7 @@ Github = {
     var githubInfo = new GithubBucket();
 
     try{
-      var results = HTTP.call('GET', "https://api.github.com/orgs/jeknowledge/repos?per_page=150", {headers: {"User-Agent": "Meteor/1.0"}});
+      var results = HTTP.call('GET', "https://api.github.com/orgs/jeknowledge/repos?per_page=150&access_token=6924887df7913a97ee7452484c79d9321d2f3ce1", {headers: {"User-Agent": "Meteor/1.0"}});
     } catch(e) {
       console.log("NAO FOI POSSIVEL OBTER OS DADOS DO GITHUB: ", e);
     }
@@ -80,7 +80,7 @@ Github = {
     }
 
     try{
-      results = HTTP.call('GET', "https://api.github.com/orgs/jeknowledge/members", {headers: {"User-Agent": "Meteor/1.0"}});
+      results = HTTP.call('GET', "https://api.github.com/orgs/jeknowledge/members?per_page=150&access_token=6924887df7913a97ee7452484c79d9321d2f3ce1", {headers: {"User-Agent": "Meteor/1.0"}});
     } catch(e) {
       console.log("NAO FOI POSSIVEL OBTER OS DADOS DO GITHUB: ", e);
     }
@@ -91,13 +91,14 @@ Github = {
 
     for (var i = 0; i < githubInfo.allRepos.length; i++) {
       try{
-        HTTP.call('GET', "https://api.github.com/orgs/jeknowledge/" + githubInfo.allRepos[i].name + "contributors", {headers: {"User-Agent": "Meteor/1.0"}});
+        HTTP.call('GET', "https://api.github.com/orgs/jeknowledge/" + githubInfo.allRepos[i].name + "/contributors?per_page=150&access_token=6924887df7913a97ee7452484c79d9321d2f3ce1", {headers: {"User-Agent": "Meteor/1.0"}});
       } catch (e) {
-        console.log("NAO FOI POSSIVEL OBTER OS DADOS DO GITHUB: ", e);
+        console.log("NAO FOI POSSIVEL OBTER OS DA DOS DO GITHUB: ", e);
       }
       githubInfo.allRepos[i].contributors.name = results.data[i].login;
       githubInfo.allRepos[i].numberContributors++;
     }
+    console.log.allRepos[0].numberContributors;
 
 
     GitHubCollection.insert(githubInfo);
