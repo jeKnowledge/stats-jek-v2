@@ -62,7 +62,7 @@ Github = {
     var githubInfo = new GithubBucket();
 
     try{
-      var results = HTTP.call('GET', "https://api.github.com/orgs/jeknowledge/repos?per_page=150&access_token=6924887df7913a97ee7452484c79d9321d2f3ce1", {headers: {"User-Agent": "Meteor/1.0"}});
+      var results = HTTP.call('GET', "https://api.github.com/orgs/jeknowledge/repos?per_page=150&access_token=" + process.env.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
     } catch(e) {
       console.log("NAO FOI POSSIVEL OBTER OS DADOS DO GITHUB: ", e);
     }
@@ -80,7 +80,7 @@ Github = {
     }
 
     try{
-      results = HTTP.call('GET', "https://api.github.com/orgs/jeknowledge/members?per_page=150&access_token=6924887df7913a97ee7452484c79d9321d2f3ce1", {headers: {"User-Agent": "Meteor/1.0"}});
+      results = HTTP.call('GET', "https://api.github.com/orgs/jeknowledge/members?per_page=150&access_token=" + process.env.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
     } catch(e) {
       console.log("NAO FOI POSSIVEL OBTER OS DADOS DO GITHUB: ", e);
     }
@@ -91,7 +91,7 @@ Github = {
 
     for (var i = 0; i < githubInfo.allRepos.length; i++) {
       try{
-        HTTP.call('GET', "https://api.github.com/orgs/jeknowledge/" + githubInfo.allRepos[i].name + "/contributors?per_page=150&access_token=6924887df7913a97ee7452484c79d9321d2f3ce1", {headers: {"User-Agent": "Meteor/1.0"}});
+        HTTP.call('GET', "https://api.github.com/orgs/jeknowledge/" + githubInfo.allRepos[i].name + "/contributors?per_page=150&access_token=" + process.env.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
       } catch (e) {
         console.log("NAO FOI POSSIVEL OBTER OS DA DOS DO GITHUB: ", e);
       }
