@@ -1,10 +1,11 @@
 import { Meteor } from 'meteor/meteor';
 
 function init(){
+
   GitHubCollection.remove({});
   VimeoCollection.remove({});
-  //Github.callStats();
-  Vimeo.callStats();
+  Github.callStats();
+  //Vimeo.callStats();
    //TODO: METHOD THAT UPDATES STATES EACH DAY AT 5:30 AM
    /*
    JekPage.getRepoList();
@@ -14,13 +15,13 @@ function init(){
    Vimeo.getRepoList();
    Linkedin.getRepoList();
    */
-}//
+}
 
 
 Meteor.startup(() => {
   init();
 });
-//
+
 Meteor.methods({
 
 
