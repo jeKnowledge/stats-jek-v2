@@ -74,10 +74,11 @@ class Repository {
     this.totalIssues = 0;                     //checked
     this.numberOpenedIssues = 0;              //checked
     this.numberClosedIssues = 0;              //checked
+    this.numberForks = 0;                     //checked
     this.lastCommit = {name : new String(), login : new String(), link : new String(), date : new Date(), description : new String(), comments : []};       //comments unchecked
     this.lastPull = new Date();             //must be a diferente struct
     this.lastEvent = new Date();            //must be a diferente struct
-    this.lastFork = new Date();            //must be a diferente struct
+    this.lastFork = {date : new Date(), name : new String()};            //checked
     this.lastMerge = new Date();            //must be a diferente struct
     this.lastInvitation = new Date();       //must be a diferente struct
     this.lastRelease = new Date();          //must be a diferente struct
@@ -101,8 +102,8 @@ class Contributor {
     this.numberClosedIssues = 0;            //Closed issues that he/she was envolved with (closed and/or was assigned to). Checked
     this.openedIssues = [];                 //Opened issues that he/she is envolved with (opened and/or was assigned to). Checked
     this.closedIssues = [];                 //Closed issues that he/she was envolved with (closed and/or was assigned to). Checked
-    this.numberForks = 0;
-    this.lastFork = new Date();             //must be a diferente struct
+    this.numberForks = 0;                   //checked
+    this.lastFork = new date();            //checked
     this.numberMerges = 0;
     this.lastMerge = new Date();             //must be a diferente struct
   }
@@ -130,6 +131,21 @@ class Person {
     this.name = new String();
     this.login = new String();
     this.link = new String();
+    this.numberCommits = 0;
+    this.commitsPerWeek = 0;                //Does the contributor work well in each week?!
+    this.delectionsAdditionsPerWeek = 0;    //Are the commits significant?
+    this.lastCommit = {date : new Date(), description : new String(), comments : []};
+    this.numberPulls = 0;
+    this.lastPull = new Date();             //must be a diferente struct
+    this.totalIssues = 0;                   //Issues that he/she is envolved with (closed and/or opened and/or was assigned to).
+    this.numberOpenedIssues = 0;            //Opened issues that he/she is envolved with (opened and/or was assigned to).
+    this.numberClosedIssues = 0;            //Closed issues that he/she was envolved with (closed and/or was assigned to).
+    this.openedIssues = [];                 //Opened issues that he/she is envolved with (opened and/or was assigned to).
+    this.closedIssues = [];                 //Closed issues that he/she was envolved with (closed and/or was assigned to).
+    this.numberForks = 0;
+    this.lastFork = date : new Date();
+    this.numberMerges = 0;
+    this.lastMerge = new Date();             //must be a diferente struct
   }
 }
 //-----------------------------------------------------------------  METHODS  ------------------------------------------------------------------//
@@ -220,13 +236,26 @@ Github = {
               break;
             }
           }
-          //EXTRACTING INFO ABOUT PULL REQUESTS....
-
-          //EXTRACTING INFO ABOUT FORKS....
-
-          //EXTRACTING INFO ABOUT MERGES....
         }
-
+        //EXTRACTING INFO ABOUT FORKS....
+        try{
+          var results5 = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + githubInfo.allRepos[i].name + "/forks?per_page=150&access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
+        } catch (e) {
+          console.log("NAO FOI POSSIVEL OBTER OS DA DOS DO GITHUB: ", e);
+        }
+        githubInfo.allRepos[i].numberForks = results5.data.length;
+        for (var h = 0; h < results5.data.length; h++) {
+          if(h == 0){
+            githubInfo.allRepos[i].lastFork.date = new Date(results5.data[h].created_at).toUTCString();    //TIMEZONE IS ALREADY THE SAME AS OURS;
+            githubInfo.allRepos[i].lastFork.name = results5.data[h].author.login;                         //TODO: PUSH PERSON CLASS
+          }
+          for (var j = 0; j < results1.data.length; j++) {
+            if (results5.data[h].author.login == githubInfo.allRepos[i].contributors[j].login){
+              githubInfo.allRepos[i].contributors[j].lastFork = new Date(results5.data[h].created_at).toUTCString();    //TIMEZONE IS ALREADY THE SAME AS OURS;
+              githubInfo.allRepos[i].contributors[j].numberForks++;
+            }
+          }
+        }
         //EXTRACTING INFO ABOUT ISSUES....
         var cl = 0, op = 0, f = 1;
         while(true) {
@@ -290,6 +319,12 @@ Github = {
         f++;
         }
 
+        //EXTRACTING INFO ABOUT PULL REQUESTS....
+
+        //EXTRACTING INFO ABOUT MERGES....
+
+        //EXTRACTING INFO ABOUT BRANCHES....
+
         if (j == 1)
             return;
         }
@@ -299,7 +334,7 @@ Github = {
 
   },
 
-  //METHOD THAT CALCULATES THE TOTAL VALUES ABOUT JEKNOWLEDGE'S GITHUB ACCOUNT
+  //METHOD THAT CALCULATES THE TOTAL VALUES ABOUT JEKNOWLEDGE'S GITHUB ACCOUNT AND THE TOTAL VALUES OF ITS MEMBERS
   //
   calculateTotals : function(){
 
