@@ -236,7 +236,6 @@ Github = {
             console.log("NAO FOI POSSIVEL OBTER OS DA DOS DO GITHUB: ", e);
           }
           if ('message' in results4.data){
-            console.log("ENTREI AQUI FILHO DA PUTA");
             break;
           }
           var newIssue = new Issue();
