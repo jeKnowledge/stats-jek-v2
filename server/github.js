@@ -3,9 +3,9 @@ import { HTTP } from 'meteor/http';
 //CLASS THAT HOLDS ALL THE INFO ABOUT GITHUB STATS
 class GithubBucket {
   constructor() {
-    this.allRepos = [];                 //checked
-    this.numberPeople = 0;              //checked
-    this.People = [];                   //almost checked
+    this.allRepos = {};                   //checked
+    this.numberMembers = 0;              //checked
+    this.members = {};                   //checked
     this.totalWatchers = 0;
     this.totalSizeKB = 0;
     this.totalCommits = 0;
@@ -20,18 +20,18 @@ class GithubBucket {
     this.totalInvitations = 0;
     this.totalReleases = 0;
     this.totalIssues = 0;
-    this.numberOpenedIssues = 0;
-    this.numberClosedIssues = 0;
-    this.lastInvitation = new Date();      //must be a diferente struct
-    this.lastMerge = new Date();           //must be a diferente struct
-    this.lastFork = new Date();            //must be a diferente struct
-    this.lastComment = new Date();         //must be a diferente struct
-    this.lastEvent = new Date();           //must be a diferente struct
-    this.lastCommit = new Date();          //must be a diferente struct
-    this.lastPull = new Date();            //must be a diferente struct
-    this.lastClosedIssue = new Date();     //must be a diferente struct
-    this.OpenedIssues = new Date();         //must be a diferente struct
-    this.lastRelease = new Date();         //must be a diferente struct
+    this.totalOpenedIssues = 0;
+    this.totalClosedIssues = 0;
+    this.lastInvitation;      //must be a diferente struct
+    this.lastMerge;           //must be a diferente struct
+    this.lastForked;            //must be a diferente struct
+    this.lastComment;         //must be a diferente struct
+    this.lastEvent;           //must be a diferente struct
+    this.lastCommit;          //must be a diferente struct
+    this.lastPull;            //must be a diferente struct
+    this.lastClosedIssue;     //must be a diferente struct
+    this.lastOpenedIssues;         //must be a diferente struct
+    this.lastRelease;         //must be a diferente struct
     //SOME EXTRA STATS
     this.commitsPerDay = 0;
     this.commitsPerWeek = 0;
@@ -40,7 +40,7 @@ class GithubBucket {
 }
 
 //CLASS THAT HOLDS ALL THE INFO ABOUT A REPOSITORY
-class Repository {
+/*class Repository {
   constructor() {
     this.name = new String();                 //checked
     this.programLanguage = new String();      //checked
@@ -52,11 +52,11 @@ class Repository {
     this.numberContributors = 0;              //checked
     this.numberCommits = 0;                   //checked
     this.downloads = 0;                       //checked
-    this.contributors = [];                   //almost checked
+    this.contributors = {};                   //checked
     this.numberComments = 0;
     this.commentsList = [];
     this.numberReleases = 0;
-    this.Releases = [];
+    this.releases = [];
     this.numberMembers = 0;
     this.membersNames = [];
     this.watchersNames = [];
@@ -78,15 +78,15 @@ class Repository {
     this.lastCommit = {name : new String(), login : new String(), link : new String(), date : new Date(), description : new String(), comments : []};       //comments unchecked
     this.lastPull = new Date();             //must be a diferente struct
     this.lastEvent = new Date();            //must be a diferente struct
-    this.lastFork = {date : new Date(), name : new String()};            //checked
+    this.lastForked = {date : new Date(), name : new String()};            //checked
     this.lastMerge = new Date();            //must be a diferente struct
     this.lastInvitation = new Date();       //must be a diferente struct
     this.lastRelease = new Date();          //must be a diferente struct
   }
-}
+}*/
 
 //CLASS THAT HOLDS ALL THE INFO ABOUT A CONTRIBUTOR AND HIS CONTRIBUTIONS
-class Contributor {
+/*class Contributor {
   constructor() {
     this.name = new String();               //checked
     this.login = new String();              //checked
@@ -103,11 +103,11 @@ class Contributor {
     this.openedIssues = [];                 //Opened issues that he/she is envolved with (opened and/or was assigned to). Checked
     this.closedIssues = [];                 //Closed issues that he/she was envolved with (closed and/or was assigned to). Checked
     this.numberForks = 0;                   //checked
-    this.lastFork = new Date();            //checked
+    this.lastForked = new Date();            //checked
     this.numberMerges = 0;
     this.lastMerge = new Date();             //must be a diferente struct
   }
-}
+}*/
 
 //CLASS THAT HOLDS ALL THE INFO ABOUT AN ISSUE
 class Issue {
@@ -125,8 +125,9 @@ class Issue {
   }
 }
 
-//CLASS THAT HOLDS ALL THE INFO ABOUT A PERSON
-class Person {
+//CLASS THAT HOLDS ALL THE INFO ABOUT A MEMBER OF JEKNOWLEDGE AND IT'S CONTRIBUTIONS FOR THE JEK REPOS
+//
+/*class Member {
   constructor() {
     this.name = new String();
     this.login = new String();
@@ -143,215 +144,290 @@ class Person {
     this.openedIssues = [];                 //Opened issues that he/she is envolved with (opened and/or was assigned to).
     this.closedIssues = [];                 //Closed issues that he/she was envolved with (closed and/or was assigned to).
     this.numberForks = 0;
-    this.lastFork = new Date();
+    this.lastForked = new Date();
     this.numberMerges = 0;
     this.lastMerge = new Date();             //must be a diferente struct
   }
-}
+}*/
 //-----------------------------------------------------------------  METHODS  ------------------------------------------------------------------//
 Github = {
-  //TODO: ARE THE "==" cases redundat??!
 
   //METHDO THAT DOES THE NECESSARY CALLS TO THE GITHUB API IN ORDER TO GET THE NECESSARY INFO ---------------------------------------------------
   //
   callStats : function(){
     //BUCKET THAT CONTAINS ALL THE DATA -------------------------------------------------------------------
-    var githubInfo = new GithubBucket();
+    let githubInfo = new GithubBucket();
 
-    //LETS EXTRACT INFO ABOUT THE MEMBERS -----------------------------------------------------------------------
+    //LETS EXTRACT INFO ABOUT THE M EMBERS -----------------------------------------------------------------------
+    let membersResults;
     try{
-      repositoriesResults = HTTP.call('GET', "https://api.github.com/orgs/jeknowledge/members?per_page=150&access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
+      membersResults = HTTP.call('GET', "https://api.github.com/orgs/jeknowledge/members?per_page=150&access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
     } catch(e) {
       console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT MEMBERS: ");
       console.log("THE ERROR: ", e);
       return;
     }
-    for(var i = 0; i < repositoriesResults.data.length; i++){
-      githubInfo.People.push(repositoriesResults.data[i].login);      //TODO: PUSH A PERSON CLASS TO THE ARRAY
-      githubInfo.numberPeople++;
+
+    for(let i = 0; i < membersResults.data.length; i++){
+      //initializing emptinesss
+      githubInfo.members[membersResults.data[i].login] = {};
+      githubInfo.members[membersResults.data[i].login].lastCommit = {};
+      githubInfo.members[membersResults.data[i].login].lastForked = {};
+
+      githubInfo.members[membersResults.data[i].login].url = membersResults.data[i].html_url;
+      //Extracting their names...
+      let memberInfo;
+      try{
+        memberInfo = HTTP.call('GET', "https://api.github.com/users/" + membersResults.data[i].login + "?per_page=150&access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
+      } catch (e) {
+        console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT THE FOLOWING MEMBER NICKNAME: " + membersResults.data[i].login);
+        console.log("THE ERROR: ", e);
+        return;
+      }
+      githubInfo.members[membersResults.data[i].login].name = memberInfo.data.name;
+      githubInfo.numberMembers++;
     }
 
     //LETS EXTRACT INFO ABOUT EACH REPOSITORY  ----------------------------------------------------------------
+    let repositoriesResults;
     try{
-      var repositoriesResults = HTTP.call('GET', "https://api.github.com/orgs/jeknowledge/repos?per_page=150&access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
+      repositoriesResults = HTTP.call('GET', "https://api.github.com/orgs/jeknowledge/repos?per_page=150&access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
     } catch(e) {
         console.log("IT WAS NOT POSSIBLE TO ACCESS THE REPOSITORIES");
         console.log("THE ERROR: ", e);
         return;
     }
-    for(var i = 0; i < repositoriesResults.data.length; i++){
-        var newRepo = new Repository();
-        githubInfo.allRepos.push(newRepo);
-        githubInfo.allRepos[i].name = repositoriesResults.data[i].name;
-        githubInfo.allRepos[i].description = repositoriesResults.data[i].description;
-        githubInfo.allRepos[i].programLanguage = repositoriesResults.data[i].language;
-        githubInfo.allRepos[i].sizeKB = repositoriesResults.data[i].size;
-        githubInfo.allRepos[i].gitUrl = repositoriesResults.data[i].git_url;
-        githubInfo.allRepos[i].numberWatchers = repositoriesResults.data[i].watchers_count;
-        githubInfo.allRepos[i].createdAt = new Date(repositoriesResults.data[i].created_at).toUTCString();   //TIMEZONE IS ALREADY THE SAME AS OURS
-        githubInfo.allRepos[i].lastUpdate = new Date(repositoriesResults.data[i].updated_at).toUTCString();  //TIMEZONE IS ALREADY THE SAME AS OURS
+
+    for(let i = 0; i < repositoriesResults.data.length; i++){
+        let repoName = repositoriesResults.data[i].name;
+        githubInfo.allRepos[repoName] = {};
+        githubInfo.allRepos[repoName].description = repositoriesResults.data[i].description;
+        githubInfo.allRepos[repoName].programLanguage = repositoriesResults.data[i].language;
+        githubInfo.allRepos[repoName].sizeKB = repositoriesResults.data[i].size;
+        githubInfo.allRepos[repoName].gitUrl = repositoriesResults.data[i].git_url;
+        githubInfo.allRepos[repoName].numberWatchers = repositoriesResults.data[i].watchers_count;
+        githubInfo.allRepos[repoName].createdAt = new Date(repositoriesResults.data[i].created_at).toUTCString();   //TIMEZONE IS ALREADY THE SAME AS OURS
+        githubInfo.allRepos[repoName].lastUpdate = new Date(repositoriesResults.data[i].updated_at).toUTCString();  //TIMEZONE IS ALREADY THE SAME AS OURS
 
         //EXTRACTING INFO ABOUT DOWNLOADS....
+        let downloadsResults;
         try{
-          var downloadsResults = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + githubInfo.allRepos[i].name + "/downloads?per_page=150&access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
+          downloadsResults = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + repoName + "/downloads?per_page=150&access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
         } catch (e) {
-          console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT DOWNLOADS IN THIS REPOSITORY: " + githubInfo.allRepos[i].name);
+          console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT DOWNLOADS IN THIS REPOSITORY: " + repoName);
           console.log("THE ERROR: ", e);
           return;
         }
-        if(downloadsResults.data.length != 0)
-          githubInfo.allRepos[i].downloads = downloadsResults.data[0].download_count;
+        if(downloadsResults.data.length != 0){
+          githubInfo.allRepos[repoName].downloads = downloadsResults.data[0].download_count;
+          githubInfo.totalDownloads = githubInfo.totalDownloads + downloadsResults.data[0].download_count || 0;
+        }
 
         //EXTRACTING INFO ABOUT CONTRIBUTORS....
+        let contributorsResults;
         try{
-          var contributorsResults = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + githubInfo.allRepos[i].name + "/contributors?per_page=150&access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
+          contributorsResults = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + repoName + "/contributors?per_page=150&access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
         } catch (e) {
-          console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT CONTRIBUTORS IN THIS REPOSITORY: " + githubInfo.allRepos[i].name);
+          console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT CONTRIBUTORS IN THIS REPOSITORY: " + repoName);
           console.log("THE ERROR: ", e);
           return;
         }
+        githubInfo.allRepos[repoName].contributors = {};
+        for (let j = 0; j < contributorsResults.data.length; j++) {
+          githubInfo.allRepos[repoName].numberContributors = githubInfo.allRepos[repoName].numberContributors + 1 || 0;
+          githubInfo.allRepos[repoName].contributors[contributorsResults.data[j].login] = {};
 
-        for (var j = 0; j < contributorsResults.data.length; j++) {
-          var newContrib = new Contributor();
-          githubInfo.allRepos[i].contributors.push(newContrib);
-
-          //Extracting their names...
+          //Extracting the real names of the contributors ....
+          let contributorInfo;
           try{
-            var contributorInfo = HTTP.call('GET', "https://api.github.com/users/" + contributorsResults.data[j].login + "?per_page=150&access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
+            contributorInfo = HTTP.call('GET', "https://api.github.com/users/" + contributorsResults.data[j].login + "?per_page=150&access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
           } catch (e) {
-            console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT THE FOLOWING CONTRIBUTOR LOGIN: " + contributorsResults.data[j].login);
+            console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT THE FOLOWING CONTRIBUTOR NICKNAME: " + contributorsResults.data[j].login);
             console.log("THE ERROR: ", e);
             return;
           }
-          githubInfo.allRepos[i].contributors[j].name = contributorInfo.name;
-          githubInfo.allRepos[i].contributors[j].login = contributorsResults.data[j].login;         //TODO: PUSH A PERSON CLASS
-          githubInfo.allRepos[i].contributors[j].link = contributorsResults.data[j].html_url;
-          githubInfo.allRepos[i].numberContributors++;
+          githubInfo.allRepos[repoName].contributors[contributorsResults.data[j].login].name = contributorInfo.data.name;
 
+          //Extracting info about the commits of each contributor ....
+          let contributorsNumbers;
           try{
-            var contributorsResults = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + githubInfo.allRepos[i].name + "/stats/contributors?per_page=50&access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
+            contributorsNumbers = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + repoName + "/stats/contributors?per_page=50&access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
             //Sometimes the API returns an undefined file
             while(typeof contributorsResults.data.length === 'undefined'){
-                contributorsResults = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + githubInfo.allRepos[i].name + "/stats/contributors?per_page=50&access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
+                contributorsNumbers = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + repoName + "/stats/contributors?per_page=50&access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
             }
           } catch (e) {
-              console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT STATS IN THIS REPOSITORY: " + githubInfo.allRepos[i].name);
+              console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT STATS IN THIS REPOSITORY: " + repoName);
               console.log("THE ERROR: ", e);
               return;
           }
-
-          var index = contributorsResults.data.length-1-j;
-          githubInfo.allRepos[i].contributors[j].numberCommits = contributorsResults.data[index].total;
-          githubInfo.allRepos[i].numberCommits +=  contributorsResults.data[index].total;
-
-          //EXTRACTING INFO ABOUT COMMITS....
-          try{
-            var commitsResults = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + githubInfo.allRepos[i].name + "/commits?per_page=150&access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
-          } catch (e) {
-              console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT COMMITS IN THIS REPOSITORY: " + githubInfo.allRepos[i].name);
-              console.log("THE ERROR: ", e);
-              return;
+          if(typeof(contributorsNumbers.data[j]) === 'undefined'){
+            console.log(repoName + ' ' + contributorsResults.data.length + ' ' + contributorsNumbers.data.length);
           }
-          for (var f = 0; f < commitsResults.data.length; f++) {
-            if (f == 0){
-              githubInfo.allRepos[i].lastCommit.name = commitsResults.data[f].commit.committer.name;        //TODO:PUSH A PERSON CLASS
-              githubInfo.allRepos[i].lastCommit.description = commitsResults.data[f].commit.message;
-              githubInfo.allRepos[i].lastCommit.date = new Date(commitsResults.data[f].commit.committer.date).toUTCString();            //TIMEZONE IS ALREADY THE SAME AS OURS
-            }
+          githubInfo.allRepos[repoName].contributors[contributorsNumbers.data[j].author.login] = {};
 
-            if (githubInfo.allRepos[i].contributors[j].name == commitsResults.data[f].commit.committer.name){
-              githubInfo.allRepos[i].contributors[j].lastCommit.description = commitsResults.data[f].commit.message;
-              githubInfo.allRepos[i].contributors[j].lastCommit.date = new Date(commitsResults.data[f].commit.committer.date).toUTCString(); //TIMEZONE IS ALREADY THE SAME AS OURS
-              break;
+          githubInfo.allRepos[repoName].contributors[contributorsNumbers.data[j].author.login].numberCommits = githubInfo.allRepos[repoName].contributors[contributorsNumbers.data[j].author.login].numberCommits + contributorsNumbers.data[j].total || 0;
+          githubInfo.allRepos[repoName].numberCommits = githubInfo.allRepos[repoName].numberCommits + contributorsNumbers.data[j].total || 0;
+          githubInfo.totalCommits += contributorsNumbers.data[j].total;
+
+          if (githubInfo.members.hasOwnProperty(contributorsNumbers.data[j].author.login)){
+            githubInfo.members[contributorsNumbers.data[j].author.login].numberCommits = githubInfo.members[contributorsNumbers.data[j].author.login].numberCommits + contributorsNumbers.data[j].total || 0;
+            githubInfo.members[contributorsNumbers.data[j].author.login].numberProjects = githubInfo.members[contributorsNumbers.data[j].author.login].numberProjects + 1 || 0;
+
+            if(typeof (githubInfo.members[contributorsNumbers.data[j].author.login].projectsInvolved) === 'undefined'){
+              githubInfo.members[contributorsNumbers.data[j].author.login].projectsInvolved = [];
             }
+            githubInfo.members[contributorsNumbers.data[j].author.login].projectsInvolved.push(repoName);
           }
         }
-        //EXTRACTING INFO ABOUT FORKS....
+
+        //EXTRACTING INFO ABOUT THE LAST COMMITS....
+        let commitsResults;
         try{
-          var forksResults = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + githubInfo.allRepos[i].name + "/forks?per_page=150&access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
+          commitsResults = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + repoName + "/commits?per_page=150&access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
         } catch (e) {
-            console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT FORKS IN THIS REPOSITORY: " + githubInfo.allRepos[i].name);
+            console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT COMMITS IN THIS REPOSITORY: " + repoName);
             console.log("THE ERROR: ", e);
             return;
         }
-        githubInfo.allRepos[i].numberForks = forksResults.data.length;
-        for (var h = 0; h < forksResults.data.length; h++) {
-          if(h == 0){
-            githubInfo.allRepos[i].lastFork.date = new Date(forksResults.data[h].created_at).toUTCString();    //TIMEZONE IS ALREADY THE SAME AS OURS;
-            githubInfo.allRepos[i].lastFork.name = forksResults.data[h].owner.login;                         //TODO: PUSH PERSON CLASS
+
+        let contributorsArray = [];
+        for (let f = 0; f < commitsResults.data.length; f++) {
+          if (f === 0){
+            githubInfo.allRepos[repoName].lastCommit = {};
+            githubInfo.allRepos[repoName].lastCommit.name = commitsResults.data[f].commit.committer.name;
+            githubInfo.allRepos[repoName].lastCommit.description = commitsResults.data[f].commit.message;
+            githubInfo.allRepos[repoName].lastCommit.date = new Date(commitsResults.data[f].commit.committer.date).toUTCString();            //TIMEZONE IS ALREADY THE SAME AS OURS
           }
-          for (var j = 0; j < downloadsResults.data.length; j++) {
-            if (forksResults.data[h].owner.login == githubInfo.allRepos[i].contributors[j].owner){
-              githubInfo.allRepos[i].contributors[j].lastFork = new Date(forksResults.data[h].created_at).toUTCString();    //TIMEZONE IS ALREADY THE SAME AS OURS;
-              githubInfo.allRepos[i].contributors[j].numberForks++;
+          if(commitsResults.data[f].committer !== null){
+            if(typeof (githubInfo.allRepos[repoName].contributors[commitsResults.data[f].committer.login].lastCommit)  === 'undefined') {
+                githubInfo.allRepos[repoName].contributors[commitsResults.data[f].committer.login].lastCommit = {};
+                githubInfo.allRepos[repoName].contributors[commitsResults.data[f].committer.login].lastCommit.date = new Date(commitsResults.data[f].commit.committer.date).toUTCString();
+                githubInfo.allRepos[repoName].contributors[commitsResults.data[f].committer.login].lastCommit.description = commitsResults.data[f].commit.message;
+                githubInfo.allRepos[repoName].contributors[commitsResults.data[f].committer.login].lastCommit.shaCode = commitsResults.data[f].sha;
+            }
+
+            let firstTime = contributorsArray.indexOf(commitsResults.data[f].committer.login);
+            if (githubInfo.members.hasOwnProperty(commitsResults.data[f].committer.login) && firstTime === -1){
+              contributorsArray.push(commitsResults.data[f].committer.login);
+              let newDate = new Date(commitsResults.data[f].commit.committer.date).toUTCString();
+              if(githubInfo.members[commitsResults.data[f].committer.login].lastCommit.date < newDate ){
+                githubInfo.members[commitsResults.data[f].committer.login].lastCommit.date = newDate;
+                githubInfo.members[commitsResults.data[f].committer.login].lastCommit.repoName = repoName;
+                githubInfo.members[commitsResults.data[f].committer.login].lastCommit.description = commitsResults.data[f].commit.message;
+                githubInfo.members[commitsResults.data[f].committer.login].lastCommit.shaCode = commitsResults.data[f].sha;
+              }
             }
           }
         }
-        //EXTRACTING INFO ABOUT ISSUES....
-        var cl = 0, op = 0, f = 1;
+
+        //EXTRACTING INFO ABOUT FORKS....
+        let forksResults;
         try{
-          var issuesResults = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + githubInfo.allRepos[i].name + "/issues?access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
+          forksResults = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + repoName + "/forks?per_page=150&access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
         } catch (e) {
-          console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT ISSUES IN THIS REPOSITORY: " + githubInfo.allRepos[i].name);
+            console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT FORKS IN THIS REPOSITORY: " + repoName);
+            console.log("THE ERROR: ", e);
+            return;
+        }
+        githubInfo.allRepos[repoName].numberForks = forksResults.data.length;
+        githubInfo.totalForks += forksResults.data.length;
+        contributorsArray = [];
+
+
+        for (let h = 0; h < forksResults.data.length; h++) {
+          if(h === 0){
+            githubInfo.allRepos[repoName].lastForked = {};
+            githubInfo.allRepos[repoName].lastForked.date = new Date(forksResults.data[h].created_at).toUTCString();    //TIMEZONE IS ALREADY THE SAME AS OURS;
+            githubInfo.allRepos[repoName].lastForked.login = forksResults.data[h].owner.login;
+          }
+          if(githubInfo.allRepos[repoName].contributors.hasOwnProperty(forksResults.data[h].owner.login) && typeof (githubInfo.allRepos[repoName].contributors[forksResults.data[h].owner.login].lastForked)  === 'undefined') {
+              githubInfo.allRepos[repoName].contributors[forksResults.data[h].owner.login].numberForks = githubInfo.allRepos[repoName].contributors[forksResults.data[h].owner.login].numberForks + 1 || 0;
+              githubInfo.allRepos[repoName].contributors[forksResults.data[h].owner.login].lastForked = {};
+              githubInfo.allRepos[repoName].contributors[forksResults.data[h].owner.login].lastForked.date = new Date(forksResults.data[h].created_at).toUTCString();  //TIMEZONE IS ALREADY THE SAME AS OURS;
+          }
+          let firstTime = contributorsArray.indexOf(forksResults.data[h].owner.login);
+          if (githubInfo.members.hasOwnProperty(forksResults.data[h].owner.login)){
+            githubInfo.members[forksResults.data[h].owner.login].numberForks = githubInfo.members[forksResults.data[h].owner.login].numberForks + 1 || 0;
+            if (firstTime === -1) {
+              contributorsArray.push(forksResults.data[h].owner.login);
+              let newDate = new Date(forksResults.data[h].created_at).toUTCString();
+              if(githubInfo.members[forksResults.data[h].owner.login].lastForked.date < newDate ){
+                githubInfo.members[forksResults.data[h].owner.login].lastForked.date = newDate;
+                githubInfo.members[forksResults.data[h].owner.login].lastForked.repoName = repoName;
+              }
+            }
+          }
+        }
+
+        //EXTRACTING INFO ABOUT ISSUES....
+        let cl = 0, op = 0, f = 1;
+        let issuesResults;
+        try{
+          issuesResults = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + repoName + "/issues?access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
+        } catch (e) {
+          console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT ISSUES IN THIS REPOSITORY: " + repoName);
           console.log("THE ERROR: ", e);
           return;
         }
+        githubInfo.allRepos[repoName].openedIssues = {};
+        githubInfo.allRepos[repoName].closedIssues = {};
+
         if (typeof issuesResults === 'undefined' || issuesResults.length <= 0) {
           while(true) {
             try{
-              var issuesResults = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + githubInfo.allRepos[i].name + "/issues/" + f + "?access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
+              issuesResults = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + repoName + "/issues/" + f + "?access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
             } catch (e) {
-              console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT THE ISSUE NUMBER:" + f + " IN THIS REPOSITORY: " + githubInfo.allRepos[i].name);
+              console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT THE ISSUE NUMBER:" + f + " IN THIS REPOSITORY: " + repoName);
               console.log("THE ERROR: ", e);
               return;
             }
-
-            var newIssue = new Issue();
-            githubInfo.allRepos[i].totalIssues++;
-            if (issuesResults.data.state == "open"){
+            let newIssue = new Issue();
+            githubInfo.allRepos[i].totalIssues = githubInfo.allRepos[i].totalIssues + 1 || 0;
+            if (issuesResults.data.state === "open"){
               op++;
-              githubInfo.allRepos[i].openedIssues.push(newIssue);
-              githubInfo.allRepos[i].numberOpenedIssues++;
-              githubInfo.allRepos[i].openedIssues.openedby = issuesResults.data.user.login;       //TODO: PUSH A PERSON CLASS
-              githubInfo.allRepos[i].openedIssues.milestone = new Date(issuesResults.data.milestone).toUTCString();              //TIMEZONE IS ALREADY THE SAME AS OURS
-              githubInfo.allRepos[i].openedIssues.createdAt = new Date(issuesResults.data.created_at).toUTCString();              //TIMEZONE IS ALREADY THE SAME AS OURS
-              githubInfo.allRepos[i].openedIssues.updatedAt = new Date(issuesResults.data.updated_at).toUTCString();              //TIMEZONE IS ALREADY THE SAME AS OURS
-              githubInfo.allRepos[i].openedIssues.title = issuesResults.data.title;
-              githubInfo.allRepos[i].openedIssues.description = issuesResults.data.body;
-              githubInfo.allRepos[i].openedIssues.numberComments = issuesResults.data.comments;
-              for (var v = 0; v < issuesResults.data.assignees.length; v++) {
-                githubInfo.allRepos[i].openedIssues.assignees.push(issuesResults.data.assignees[v]);
-                for (var j = 0; j < commitsResults.data.length; j++) {
-                  if(githubInfo.allRepos[i].contributors[j].login == issuesResults.data.user.login || githubInfo.allRepos[i].contributors[j].login == issuesResults.data.assignees[v]){
-                    githubInfo.allRepos[i].contributors[j].openedIssues.push(githubInfo.allRepos[i].openedIssues[op]);
-                    githubInfo.allRepos[i].contributors[j].totalIssues++;
-                    githubInfo.allRepos[i].contributors[j].numberOpenedIssues++;
-                    break;
+              githubInfo.allRepos[repoName].openedIssues.push(newIssue);
+              githubInfo.allRepos[repoName].numberOpenedIssues = githubInfo.allRepos[repoName].numberOpenedIssues + 1 || 0;
+              githubInfo.allRepos[repoName].openedIssues.openedby = issuesResults.data.user.login;
+              githubInfo.allRepos[repoName].openedIssues.milestone = new Date(issuesResults.data.milestone).toUTCString();              //TIMEZONE IS ALREADY THE SAME AS OURS
+              githubInfo.allRepos[repoName].openedIssues.createdAt = new Date(issuesResults.data.created_at).toUTCString();              //TIMEZONE IS ALREADY THE SAME AS OURS
+              githubInfo.allRepos[repoName].openedIssues.updatedAt = new Date(issuesResults.data.updated_at).toUTCString();              //TIMEZONE IS ALREADY THE SAME AS OURS
+              githubInfo.allRepos[repoName].openedIssues.title = issuesResults.data.title;
+              githubInfo.allRepos[repoName].openedIssues.description = issuesResults.data.body;
+              githubInfo.allRepos[repoName].openedIssues.numberComments = issuesResults.data.comments;
+              for (let v = 0; v < issuesResults.data.assignees.length; v++) {
+                if(githubInfo.allRepos[repoName].contributors.hasOwnProperty(issuesResults.data.assignees[v])){
+                  if(typeof(githubInfo.allRepos[repoName].contributors[issuesResults.data.assignees[v]].openedIssues) === 'undefined'){
+                    githubInfo.allRepos[repoName].contributors[issuesResults.data.assignees[v]].openedIssues = [];
                   }
+                  githubInfo.allRepos[repoName].openedIssues.assignees.push(issuesResults.data.assignees[v]);
+                  githubInfo.allRepos[repoName].contributors[issuesResults.data.assignees[v]].openedIssues.push(githubInfo.allRepos[repoName].openedIssues[op]);
+                  githubInfo.allRepos[repoName].contributors[issuesResults.data.assignees[v]].totalIssues = githubInfo.allRepos[repoName].contributors[issuesResults.data.user.login].totalIssues + 1 || 0;
+                  githubInfo.allRepos[repoName].contributors[issuesResults.data.assignees[v]].numberOpenedIssues = githubInfo.allRepos[repoName].contributors[issuesResults.data.user.login].numberOpenedIssues + 1 || 0;
                 }
               }
             } else {
               cl++;
-              githubInfo.allRepos[i].closedIssues.push(newIssue);
-              githubInfo.allRepos[i].numberClosedIssues++;
-              githubInfo.allRepos[i].closedIssues.openedby = issuesResults.data.user.login;       //TODO: PUSH A PERSON CLASS
-              githubInfo.allRepos[i].closedIssues.milestone = new Date(issuesResults.data.milestone).toUTCString();              //TIMEZONE IS ALREADY THE SAME AS OURS
-              githubInfo.allRepos[i].closedIssues.createdAt = new Date(issuesResults.data.created_at).toUTCString();              //TIMEZONE IS ALREADY THE SAME AS OURS
-              githubInfo.allRepos[i].closedIssues.updatedAt = new Date(issuesResults.data.updated_at).toUTCString();              //TIMEZONE IS ALREADY THE SAME AS OURS
-              githubInfo.allRepos[i].closedIssues.title = issuesResults.data.title;
-              githubInfo.allRepos[i].closedIssues.description = issuesResults.data.body;
-              githubInfo.allRepos[i].closedIssues.numberComments = issuesResults.data.comments;
-              githubInfo.allRepos[i].closedIssues.closedAt = new Date(issuesResults.data.closed_at).toUTCString();              //TIMEZONE IS ALREADY THE SAME AS OURS
-              githubInfo.allRepos[i].closedIssues.closedby = issuesResults.data.closed_by.login;       //TODO: PUSH A PERSON CLASS
-              for (var v = 0; v < issuesResults.data.assignees.length; v++) {
-                githubInfo.allRepos[i].closedIssues.assignees.push(issuesResults.data.assignees[v]);
-                for (var j = 0; j < commitsResults.data.length; j++) {
-                  if(githubInfo.allRepos[i].contributors[j].login == issuesResults.data.user.login || githubInfo.allRepos[i].contributors[j].login == issuesResults.data.assignees[v]){
-                    githubInfo.allRepos[i].contributors[j].closedIssues.push(githubInfo.allRepos[i].closedIssues[op]);
-                    githubInfo.allRepos[i].contributors[j].totalIssues++;
-                    githubInfo.allRepos[i].contributors[j].numberClosedIssues++;
-                    break;
+              githubInfo.allRepos[repoName].closedIssues.push(newIssue);
+              githubInfo.allRepos[repoName].numberClosedIssues = githubInfo.allRepos[repoName].numberClosedIssues + 1 || 0;
+              githubInfo.allRepos[repoName].closedIssues.openedby = issuesResults.data.user.login;
+              githubInfo.allRepos[repoName].closedIssues.milestone = new Date(issuesResults.data.milestone).toUTCString();              //TIMEZONE IS ALREADY THE SAME AS OURS
+              githubInfo.allRepos[repoName].closedIssues.createdAt = new Date(issuesResults.data.created_at).toUTCString();              //TIMEZONE IS ALREADY THE SAME AS OURS
+              githubInfo.allRepos[repoName].closedIssues.updatedAt = new Date(issuesResults.data.updated_at).toUTCString();              //TIMEZONE IS ALREADY THE SAME AS OURS
+              githubInfo.allRepos[repoName].closedIssues.title = issuesResults.data.title;
+              githubInfo.allRepos[repoName].closedIssues.description = issuesResults.data.body;
+              githubInfo.allRepos[repoName].closedIssues.numberComments = issuesResults.data.comments;
+              githubInfo.allRepos[repoName].closedIssues.closedAt = new Date(issuesResults.data.closed_at).toUTCString();              //TIMEZONE IS ALREADY THE SAME AS OURS
+              githubInfo.allRepos[repoName].closedIssues.closedby = issuesResults.data.closed_by.login;
+              for (let v = 0; v < issuesResults.data.assignees.length; v++) {
+                if(githubInfo.allRepos[repoName].contributors.hasOwnProperty(issuesResults.data.assignees[v])){
+                  if(typeof(githubInfo.allRepos[repoName].contributors[issuesResults.data.assignees[v]].closedIssues) === 'undefined'){
+                    githubInfo.allRepos[repoName].contributors[issuesResults.data.assignees[v]].closedIssues = [];
                   }
+                  githubInfo.allRepos[repoName].closedIssues.assignees.push(issuesResults.data.assignees[v]);
+                  githubInfo.allRepos[repoName].contributors[issuesResults.data.assignees[v]].closedIssues.push(githubInfo.allRepos[repoName].closedIssues[op]);
+                  githubInfo.allRepos[repoName].contributors[issuesResults.data.assignees[v]].totalIssues = githubInfo.allRepos[repoName].contributors[issuesResults.data.assignees[v]].totalIssues + 1 || 0;
+                  githubInfo.allRepos[repoName].contributors[issuesResults.data.assignees[v]].numberClosedIssues = githubInfo.allRepos[repoName].contributors[issuesResults.data.assignees[v]].numberClosedIssues + 1 || 0;
                 }
               }
             }
@@ -366,6 +442,7 @@ Github = {
         //EXTRACTING INFO ABOUT BRANCHES....
         }
 
+        
 
     GitHubCollection.insert(githubInfo);
 
