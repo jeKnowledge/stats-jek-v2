@@ -5,7 +5,7 @@ A Dashboard with Statistics of jeKnowledge's...
    * Slack
    * Twitter
    * Facebook
-   * [Official Page](https://www.jek.pt)
+   * [Official Page](http://www.jek.pt)
 
 
 ## Run the Project With the Following Commands:
