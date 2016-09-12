@@ -1,0 +1,16 @@
+# Jek Dashboard
+A Dashboard with Statistics of jeKnowledge's...
+   * Github
+   * Vimeo
+   * Slack
+   * Twitter
+   * Facebook
+   * [Official Page](www.jek.pt)
+
+
+## Run the Project With the Following Commands:
+-  ```meteor run --settings settings.json```
+
+## Requirments
+- **nodeJs**
+- **Meteor**

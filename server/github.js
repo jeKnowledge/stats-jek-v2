@@ -440,9 +440,10 @@ Github = {
         //EXTRACTING INFO ABOUT MERGES....
 
         //EXTRACTING INFO ABOUT BRANCHES....
+
         }
 
-        
+
 
     GitHubCollection.insert(githubInfo);
 
