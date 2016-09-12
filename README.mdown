@@ -1,5 +1,5 @@
-# Jek Dashboard
-A Dashboard with Statistics of jeKnowledge's...
+# jeKnowledge Dashboard
+A Dashboard with statistics of some of the platforms that jeKnowledge uses, such as:
    * Github
    * Vimeo
    * Slack
@@ -8,7 +8,7 @@ A Dashboard with Statistics of jeKnowledge's...
    * [Official Page](http://www.jek.pt)
 
 
-## Run the Project With the Following Commands:
+## Run the project with the following commands:
 -  ```meteor run --settings settings.json```
 
 ## Requirements
