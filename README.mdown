@@ -1,5 +1,5 @@
-# jeKnowledge Dashboard
-A Dashboard with statistics of some of the platforms that jeKnowledge uses, such as:
+# Jek Dashboard
+A Dashboard with Statistics of jeKnowledge's...
    * Github
    * Vimeo
    * Slack
@@ -8,9 +8,16 @@ A Dashboard with statistics of some of the platforms that jeKnowledge uses, such
    * [Official Page](http://www.jek.pt)
 
 
-## Run the project with the following commands:
+## Run the Project With the Following Commands:
 -  ```meteor run --settings settings.json```
 
 ## Requirements
 - **nodeJs**
 - **Meteor**
+
+## Example of settings.json
+{
+  "MY_TOKEN_A": " ******** ",
+  "MY_TOKEN_B": " ******** ",
+  "public": {}
+}
