@@ -14,7 +14,10 @@ A Dashboard with statistics of some of the platforms that jeKnowledge uses, such
 - **nodeJs**
 - **Meteor**
 
-## Example of settings.json
+## Additional Meteor Modules
+- http
+
+## Example of a settings.json
 {  
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**"MY_TOKEN_A"**: "####",  
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**"MY_TOKEN_B"**: "####",  
