@@ -5,24 +5,9 @@
 
 <body>
     <div class ="container">
+      <span>GITHUB STATISTICS</span>
         <ul>
-          {{#each facebook}}
-              {{> statsForm}}
-          {{/each}}
-
-          {{#each slack}}
-              {{> statsForm}}
-          {{/each}}
-
-          {{#each twitter}}
-              {{> statsForm}}
-          {{/each}}
-
           {{#each github}}
-              {{> statsForm}}
-          {{/each}}
-
-          {{#each jekPage}}
               {{> statsForm}}
           {{/each}}
         </ul>
@@ -30,8 +15,8 @@
 
 </body>
 
-
-<!-- ------------------------------------------ TEMPLATES ---------------------------------------->
 <template name="statsForm">
-    <li>{{title}}</li>
+      <li>MEMBROS:  {{numberMembers}}</li>
+
+      <li>TOTAL DE COMMITS:  {{totalCommits}}</li>
 </template>

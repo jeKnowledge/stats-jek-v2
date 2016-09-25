@@ -1,9 +1,8 @@
 import { Meteor } from 'meteor/meteor';
-//APP MUST BE STARTED WITH THE FOLLOWING: meteor run --settings settings.json
 
 function init(){
   GitHubCollection.remove({});
-  VimeoCollection.remove({});
+  //VimeoCollection.remove({});
   Github.callStats();
   //Vimeo.callStats();
 
