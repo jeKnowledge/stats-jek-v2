@@ -378,7 +378,10 @@ Github = {
           }
 
           githubInfo.totalPulls++;
-          this.incrementing(githubInfo.allRepos[repoName].numberPulls, 1);
+          githubInfo.allRepos[repoName].numberOpenedPulls = 0;
+          githubInfo.allRepos[repoName].numberMerges = 0;
+          githubInfo.allRepos[repoName].numberPulls = this.incrementing(githubInfo.allRepos[repoName].numberPulls, 1);
+
           let isOpen = false;
           if (pullRequest.data.state === "open"){
             isOpen = true;
@@ -405,7 +408,10 @@ Github = {
           }
 
           if(githubInfo.allRepos[repoName].contributors.hasOwnProperty(pullRequest.data.user.login)){
-            this.incrementing(githubInfo.allRepos[repoName].contributors[pullRequest.data.user.login].numberPulls, 1);
+            githubInfo.allRepos[repoName].contributors[pullRequest.data.user.login].numberPulls = this.incrementing(githubInfo.allRepos[repoName].contributors[pullRequest.data.user.login].numberPulls, 1);
+            githubInfo.allRepos[repoName].contributors[pullRequest.data.user.login].numberOpenedPulls = 0;
+            githubInfo.allRepos[repoName].contributors[pullRequest.data.user.login].numberMerges = 0;
+
             if(typeof (githubInfo.allRepos[repoName].contributors[pullRequest.data.user.login].lastPullRequest)  === 'undefined'){
               githubInfo.allRepos[repoName].contributors[pullRequest.data.user.login].lastPullRequest = newPull;
             }
@@ -414,20 +420,23 @@ Github = {
               if(typeof(githubInfo.allRepos[repoName].contributors[pullRequest.data.user.login].openedPulls) === 'undefined'){
                 githubInfo.allRepos[repoName].contributors[pullRequest.data.user.login].openedPulls = [];
               }
-              this.incrementing(githubInfo.allRepos[repoName].contributors[pullRequest.data.user.login].numberOpenedPulls, 1);
+              githubInfo.allRepos[repoName].contributors[pullRequest.data.user.login].numberOpenedPulls++;
               githubInfo.allRepos[repoName].contributors[pullRequest.data.user.login].openedPulls.push(copy);
             } else {
               let copy = newPull;
               if(typeof(githubInfo.allRepos[repoName].contributors[pullRequest.data.user.login].merges) === 'undefined'){
                 githubInfo.allRepos[repoName].contributors[pullRequest.data.user.login].merges = [];
               }
-              this.incrementing(githubInfo.allRepos[repoName].contributors[pullRequest.data.user.login].numberMerges, 1);
+              githubInfo.allRepos[repoName].contributors[pullRequest.data.user.login].numberMerges++;
               githubInfo.allRepos[repoName].contributors[pullRequest.data.user.login].merges.push(copy);
             }
           }
 
           if(githubInfo.members.hasOwnProperty(pullRequest.data.user.login)){
-            this.incrementing(githubInfo.members[pullRequest.data.user.login].numberPulls, 1);
+            githubInfo.members[pullRequest.data.user.login].numberPulls = this.incrementing(githubInfo.members[pullRequest.data.user.login].numberPulls, 1);
+            ithubInfo.members[pullRequest.data.user.login].numberOpenedPulls = 0;
+            githubInfo.members[pullRequest.data.user.login].numberMerges = 0;
+
             if(typeof (githubInfo.members[pullRequest.data.user.login].lastPullRequest)  === 'undefined'){
               githubInfo.members[pullRequest.data.user.login].lastPullRequest = newPull;
             }
@@ -436,14 +445,14 @@ Github = {
               if(typeof(githubInfo.members[pullRequest.data.user.login].openedPulls) === 'undefined'){
                 githubInfo.members[pullRequest.data.user.login].openedPulls = [];
               }
-              this.incrementing(githubInfo.members[pullRequest.data.user.login].numberOpenedPulls, 1);
+              githubInfo.members[pullRequest.data.user.login].numberOpenedPull++;
               githubInfo.members[pullRequest.data.user.login].openedPulls.push(copy);
             } else {
               let copy = newPull;
               if(typeof(githubInfo.members[pullRequest.data.user.login].merges) === 'undefined'){
                 githubInfo.members[pullRequest.data.user.login].merges = [];
               }
-              this.incrementing(githubInfo.members[pullRequest.data.user.login].numberMerges, 1);
+              githubInfo.members[pullRequest.data.user.login].numberMerges++;
               githubInfo.members[pullRequest.data.user.login].merges.push(copy);
             }
           }
@@ -451,20 +460,17 @@ Github = {
           if (isOpen){
             githubInfo.totalOpenedPulls++;
             githubInfo.allRepos[repoName].openedPulls.push(newPull);
-            this.incrementing(githubInfo.allRepos[repoName].numberOpenedPulls, 1);
+            githubInfo.allRepos[repoName].numberOpenedPulls = this.incrementing(githubInfo.allRepos[repoName].numberOpenedPulls, 1);
           } else {
             githubInfo.totalMerges++;
             githubInfo.allRepos[repoName].merges.push(newPull);
-            this.incrementing(githubInfo.allRepos[repoName].numberMerges, 1);
+            githubInfo.allRepos[repoName].numberMerges = this.incrementing(githubInfo.allRepos[repoName].numberMerges, 1);
           }
 
         }
 
-        if(repoName === "records-platform"){
-          console.log(githubInfo.allRepos[repoName]);
-          break;
-        }
 
+        //TODO: redundancy of forks, issues, commits...
         //TODO:EXTRACT INFO LEFT
         //TODO: calculate lasts
         //TODO: run final tests to assure that everything is stable and all info is reliable
