@@ -3,35 +3,41 @@ import { HTTP } from 'meteor/http';
 //CLASS THAT HOLDS ALL THE INFO ABOUT GITHUB STATS
 class GithubBucket {
   constructor() {
-    this.allRepos = {};                   //checked
-    this.numberMembers = 0;              //checked
-    this.members = {};                   //checked
+    this.allRepos = {};
+    this.numberMembers = 0;
+    this.members = {};
     this.totalWatchers = 0;
     this.totalSizeKB = 0;
     this.totalCommits = 0;
-    this.numberFollowers = 0;
-    this.followersNames = [];
     this.totalDownloads = 0;
-    this.totalPulls = 0;
-    this.totalStargazers = 0;
-    this.totalComments = 0;
     this.totalForks = 0;
-    this.totalMerges = 0;
-    this.totalInvitations = 0;
-    this.totalReleases = 0;
     this.totalIssues = 0;
     this.totalOpenedIssues = 0;
     this.totalClosedIssues = 0;
-    this.lastInvitation;      //must be a diferente struct
-    this.lastMerge;           //must be a diferente struct
-    this.lastForked;            //must be a diferente struct
-    this.lastComment;         //must be a diferente struct
-    this.lastEvent;           //must be a diferente struct
-    this.lastCommit;          //must be a diferente struct
-    this.lastPull;            //must be a diferente struct
-    this.lastClosedIssue;     //must be a diferente struct
-    this.lastOpenedIssues;         //must be a diferente struct
-    this.lastRelease;         //must be a diferente struct
+    this.totalOpenedPulls = 0;
+    this.totalMerges = 0;         //count as closed Pulls
+    this.totalPulls = 0;
+
+    //TODO:------- not extracted -----------
+    this.totalContributors = 0;
+    this.contributors = [];
+    this.numberFollowers = 0;
+    this.followersNames = [];
+    this.totalStargazers = 0;
+    this.totalComments = 0;
+    this.totalInvitations = 0;
+    this.totalReleases = 0;
+    this.lastInvitation;
+    this.lastComment;
+    this.lastEvent;
+    this.lastRelease;
+    this.lastForked;
+    this.lastCommit;
+    this.lastClosedIssue;
+    this.lastOpenedIssues;
+    this.lastPullRequest;            //it can be closed or opened
+    this.lastOpenedPull;
+    this.lastMerge;                 //or last closed pull request
     //SOME EXTRA STATS
     this.commitsPerDay = 0;
     this.commitsPerWeek = 0;
@@ -39,116 +45,42 @@ class GithubBucket {
   }
 }
 
-//CLASS THAT HOLDS ALL THE INFO ABOUT A REPOSITORY
-/*class Repository {
-  constructor() {
-    this.name = new String();                 //checked
-    this.programLanguage = new String();      //checked
-    this.sizeKB = 0;                          //checked
-    this.description = new String();          //checked
-    this.gitUrl = new String();               //checked
-    this.createdAt = new Date();              //checked
-    this.numberWatchers = 0;
-    this.numberContributors = 0;              //checked
-    this.numberCommits = 0;                   //checked
-    this.downloads = 0;                       //checked
-    this.contributors = {};                   //checked
-    this.numberComments = 0;
-    this.commentsList = [];
-    this.numberReleases = 0;
-    this.releases = [];
-    this.numberMembers = 0;
-    this.membersNames = [];
-    this.watchersNames = [];
-    this.numberStargazers = 0;
-    this.stargazersNames = [];
-    this.numberInvitations = 0;
-    this.invitationList = [];
-    this.numberPulls = 0;
-    this.pullRequests = [];
-    this.numberBranches = 0;
-    this.branchesList = [];
-    this.defaultBranch = new String();
-    this.closedIssues = [];                   //checked
-    this.openedIssues = [];                   //checked
-    this.totalIssues = 0;                     //checked
-    this.numberOpenedIssues = 0;              //checked
-    this.numberClosedIssues = 0;              //checked
-    this.numberForks = 0;                     //checked
-    this.lastCommit = {name : new String(), login : new String(), link : new String(), date : new Date(), description : new String(), comments : []};       //comments unchecked
-    this.lastPull = new Date();             //must be a diferente struct
-    this.lastEvent = new Date();            //must be a diferente struct
-    this.lastForked = {date : new Date(), name : new String()};            //checked
-    this.lastMerge = new Date();            //must be a diferente struct
-    this.lastInvitation = new Date();       //must be a diferente struct
-    this.lastRelease = new Date();          //must be a diferente struct
-  }
-}*/
-
-//CLASS THAT HOLDS ALL THE INFO ABOUT A CONTRIBUTOR AND HIS CONTRIBUTIONS
-/*class Contributor {
-  constructor() {
-    this.name = new String();               //checked
-    this.login = new String();              //checked
-    this.link = new String();               //checked
-    this.numberCommits = 0;                 //checked
-    this.commitsPerWeek = 0;                //Does the contributor work well in each week?!
-    this.delectionsAdditionsPerWeek = 0;    //Are the commits significant?
-    this.lastCommit = {date : new Date(), description : new String(), comments : []};    // comments unchecked
-    this.numberPulls = 0;
-    this.lastPull = new Date();             //must be a diferente struct
-    this.totalIssues = 0;                   //Issues that he/she is envolved with (closed and/or opened and/or was assigned to). Checked
-    this.numberOpenedIssues = 0;            //Opened issues that he/she is envolved with (opened and/or was assigned to). Checked
-    this.numberClosedIssues = 0;            //Closed issues that he/she was envolved with (closed and/or was assigned to). Checked
-    this.openedIssues = [];                 //Opened issues that he/she is envolved with (opened and/or was assigned to). Checked
-    this.closedIssues = [];                 //Closed issues that he/she was envolved with (closed and/or was assigned to). Checked
-    this.numberForks = 0;                   //checked
-    this.lastForked = new Date();            //checked
-    this.numberMerges = 0;
-    this.lastMerge = new Date();             //must be a diferente struct
-  }
-}*/
-
 //CLASS THAT HOLDS ALL THE INFO ABOUT AN ISSUE
 class Issue {
   constructor() {
-    this.openedby = new String();
+    this.openedby = "";
     this.assignees = [];
     this.milestone = null;
     this.createdAt = new Date();
     this.updatedAt = new Date();
-    this.title = new String();
-    this.description = new String()
+    this.title = "";
+    this.description = ""
     this.numberComments = 0;
     this.closedAt = null;                                                       //Issues start open by default
     this.closedby = null;                                                       //Issues start open by default
   }
 }
 
-//CLASS THAT HOLDS ALL THE INFO ABOUT A MEMBER OF JEKNOWLEDGE AND IT'S CONTRIBUTIONS FOR THE JEK REPOS
-//
-/*class Member {
+//CLASS THAT HOLDS ALL THE INFO ABOUT A PULL REQUEST (OPENED OR CLOSED)
+class PullRequest {
   constructor() {
-    this.name = new String();
-    this.login = new String();
-    this.link = new String();
+    this.title = "";
+    this.login = "";
+    this.createdAt = null;
+    this.updatedAt = null;
+    this.mergedAt = null;
+    this.assignees = [];
+    this.milestone = null;
+    this.body = "";
+    this.numberComments = 0;
     this.numberCommits = 0;
-    this.commitsPerWeek = 0;                //Does the contributor work well in each week?!
-    this.delectionsAdditionsPerWeek = 0;    //Are the commits significant?
-    this.lastCommit = {date : new Date(), description : new String(), comments : []};
-    this.numberPulls = 0;
-    this.lastPull = new Date();             //must be a diferente struct
-    this.totalIssues = 0;                   //Issues that he/she is envolved with (closed and/or opened and/or was assigned to).
-    this.numberOpenedIssues = 0;            //Opened issues that he/she is envolved with (opened and/or was assigned to).
-    this.numberClosedIssues = 0;            //Closed issues that he/she was envolved with (closed and/or was assigned to).
-    this.openedIssues = [];                 //Opened issues that he/she is envolved with (opened and/or was assigned to).
-    this.closedIssues = [];                 //Closed issues that he/she was envolved with (closed and/or was assigned to).
-    this.numberForks = 0;
-    this.lastForked = new Date();
-    this.numberMerges = 0;
-    this.lastMerge = new Date();             //must be a diferente struct
+    this.numberDelections = 0;
+    this.numberInsertions = 0;
+    this.mergeConflicts = true;
+    this.changed_files = 0;
   }
-}*/
+}
+
 //-----------------------------------------------------------------  METHODS  ------------------------------------------------------------------//
 Github = {
 
@@ -172,6 +104,7 @@ Github = {
       //initializing emptinesss
       githubInfo.members[membersResults.data[i].login] = {};
       githubInfo.members[membersResults.data[i].login].lastCommit = {};
+      githubInfo.members[membersResults.data[i].login].lastPull = {};
       githubInfo.members[membersResults.data[i].login].lastForked = {};
 
       githubInfo.members[membersResults.data[i].login].url = membersResults.data[i].html_url;
@@ -357,8 +290,10 @@ Github = {
           console.log("THE ERROR: ", e);
           return;
         }
-        githubInfo.allRepos[repoName].openedIssues = {};
-        githubInfo.allRepos[repoName].closedIssues = {};
+        githubInfo.allRepos[repoName].openedIssues = [];
+        githubInfo.allRepos[repoName].closedIssues = [];
+        githubInfo.allRepos[repoName].openedPulls = [];
+        githubInfo.allRepos[repoName].merges = [];
 
         if (typeof issuesResults === 'undefined' || issuesResults.length <= 0) {
           while(true) {
@@ -424,10 +359,116 @@ Github = {
         }
 
         //EXTRACTING INFO ABOUT PULL REQUESTS....
+        try{
+          pullsResults = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + repoName + "/pulls?access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
+        } catch (e) {
+          console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT PULL REQUESTS IN THIS REPOSITORY: " + repoName);
+          console.log("THE ERROR: ", e);
+          return;
+        }
 
-        //EXTRACTING INFO ABOUT MERGES....
 
-        //EXTRACTING INFO ABOUT BRANCHES....
+        for (var l = 0; l < pullsResults.data.length; l++) {
+          try{
+            pullRequest = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + repoName + "/pulls/" + (l+1) + "access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
+          } catch (e) {
+            console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT PULL REQUESTS IN THIS REPOSITORY: " + repoName);
+            console.log("THE ERROR: ", e);
+            return;
+          }
+
+          githubInfo.totalPulls++;
+          this.incrementing(githubInfo.allRepos[repoName].numberPulls, 1);
+          let isOpen = false;
+          if (pullRequest.data.state === "open"){
+            isOpen = true;
+          }
+
+          let newPull = new PullRequest();
+          newPull.title = pullRequest.data.title;
+          newPull.login = pullRequest.data.user.login;
+          newPull.createdAt =  new Date(pullRequest.data.created_at).toUTCString();
+          newPull.updatedAt =  new Date(pullRequest.data.updated_at).toUTCString();;
+          newPull.mergedAt =  new Date(pullRequest.data.merged_at).toUTCString();;
+          newPull.assignees = pullRequest.data.assignees;
+          newPull.milestone = pullRequest.data.milestone;
+          newPull.body = pullRequest.data.body;
+          newPull.numberComments = pullRequest.data.comments;
+          newPull.numberCommits = pullRequest.data.commits;
+          newPull.numberDelections = pullRequest.data.deletions;
+          newPull.numberInsertions = pullRequest.data.additions;
+          newPull.mergeConflicts = !pullRequest.data.mergeable;
+          newPull.changed_files = pullRequest.data.changed_files;
+
+          if (l === 0){
+            githubInfo.allRepos[repoName].lastPullRequest = newPull;
+          }
+
+          if(githubInfo.allRepos[repoName].contributors.hasOwnProperty(pullRequest.data.user.login)){
+            this.incrementing(githubInfo.allRepos[repoName].contributors[pullRequest.data.user.login].numberPulls, 1);
+            if(typeof (githubInfo.allRepos[repoName].contributors[pullRequest.data.user.login].lastPullRequest)  === 'undefined'){
+              githubInfo.allRepos[repoName].contributors[pullRequest.data.user.login].lastPullRequest = newPull;
+            }
+            if(isOpen){
+              let copy = newPull;
+              if(typeof(githubInfo.allRepos[repoName].contributors[pullRequest.data.user.login].openedPulls) === 'undefined'){
+                githubInfo.allRepos[repoName].contributors[pullRequest.data.user.login].openedPulls = [];
+              }
+              this.incrementing(githubInfo.allRepos[repoName].contributors[pullRequest.data.user.login].numberOpenedPulls, 1);
+              githubInfo.allRepos[repoName].contributors[pullRequest.data.user.login].openedPulls.push(copy);
+            } else {
+              let copy = newPull;
+              if(typeof(githubInfo.allRepos[repoName].contributors[pullRequest.data.user.login].merges) === 'undefined'){
+                githubInfo.allRepos[repoName].contributors[pullRequest.data.user.login].merges = [];
+              }
+              this.incrementing(githubInfo.allRepos[repoName].contributors[pullRequest.data.user.login].numberMerges, 1);
+              githubInfo.allRepos[repoName].contributors[pullRequest.data.user.login].merges.push(copy);
+            }
+          }
+
+          if(githubInfo.members.hasOwnProperty(pullRequest.data.user.login)){
+            this.incrementing(githubInfo.members[pullRequest.data.user.login].numberPulls, 1);
+            if(typeof (githubInfo.members[pullRequest.data.user.login].lastPullRequest)  === 'undefined'){
+              githubInfo.members[pullRequest.data.user.login].lastPullRequest = newPull;
+            }
+            if(isOpen){
+              let copy = newPull;
+              if(typeof(githubInfo.members[pullRequest.data.user.login].openedPulls) === 'undefined'){
+                githubInfo.members[pullRequest.data.user.login].openedPulls = [];
+              }
+              this.incrementing(githubInfo.members[pullRequest.data.user.login].numberOpenedPulls, 1);
+              githubInfo.members[pullRequest.data.user.login].openedPulls.push(copy);
+            } else {
+              let copy = newPull;
+              if(typeof(githubInfo.members[pullRequest.data.user.login].merges) === 'undefined'){
+                githubInfo.members[pullRequest.data.user.login].merges = [];
+              }
+              this.incrementing(githubInfo.members[pullRequest.data.user.login].numberMerges, 1);
+              githubInfo.members[pullRequest.data.user.login].merges.push(copy);
+            }
+          }
+
+          if (isOpen){
+            githubInfo.totalOpenedPulls++;
+            githubInfo.allRepos[repoName].openedPulls.push(newPull);
+            this.incrementing(githubInfo.allRepos[repoName].numberOpenedPulls, 1);
+          } else {
+            githubInfo.totalMerges++;
+            githubInfo.allRepos[repoName].merges.push(newPull);
+            this.incrementing(githubInfo.allRepos[repoName].numberMerges, 1);
+          }
+
+        }
+
+        if(repoName === "records-platform"){
+          console.log(githubInfo.allRepos[repoName]);
+          break;
+        }
+
+        //TODO:EXTRACT INFO LEFT
+        //TODO: calculate lasts
+        //TODO: run final tests to assure that everything is stable and all info is reliable
+        //TODO:modularize code to allow different organizations get statistics from their platforms
 
 
         }
@@ -456,3 +497,100 @@ Github = {
 
 
 };
+
+
+/*EXAMPLE OF AN OBJECT THAT HOLDS ALL THE INFO ABOUT ONE REPOSITORY
+    this.name = "";
+    this.programLanguage = "";
+    this.sizeKB = 0;
+    this.description = "";
+    this.gitUrl = "";
+    this.createdAt = new Date();
+    this.numberContributors = 0;
+    this.numberCommits = 0;
+    this.downloads = 0;
+    this.contributors = {};
+    this.numberMembers = 0;
+    this.membersNames = [];
+    this.closedIssues = [];
+    this.openedIssues = [];
+    this.totalIssues = 0;
+    this.numberOpenedIssues = 0;
+    this.numberClosedIssues = 0;
+    this.numberForks = 0;
+    this.lastCommit = {name : "", login : "", link : "", date : new Date(), description : "", comments : []};
+    this.lastForked = {date : new Date(), name : ""};
+    this.numberPulls = 0;
+    this.numberOpenedPulls = 0;
+    this.numberMerges = 0;
+    this.openedPulls = [];
+    this.merges = [];
+    this.lastPullRequest;            //it can be closed or opened
+
+    //TODO:------- not extracted -----------
+    this.numberWatchers = 0;
+    this.watchersNames = [];
+    this.numberStargazers = 0;
+    this.stargazersNames = [];
+    this.numberInvitations = 0;
+    this.invitationList = [];
+    this.numberComments = 0;
+    this.numberReleases = 0;
+    this.releases = [];
+    this.numberBranches = 0;
+    this.branchesList = [];
+    this.defaultBranch = "";
+    this.lastRelease = new Date();
+    this.lastEvent = new Date();
+    this.lastInvitation = new Date();
+*/
+
+/*EXAMPLE OF AN OBJECT THAT HOLDS ALL THE INFO ABOUT A CONTRIBUTOR AND HIS CONTRIBUTIONS
+    this.name = "";
+    this.login = "";
+    this.link = "";
+    this.numberCommits = 0;
+    this.lastCommit;
+    this.totalIssues = 0;                   //Issues that he/she is envolved with (closed and/or opened and/or was assigned to).
+    this.numberOpenedIssues = 0;            //Opened issues that he/she is envolved with (opened and/or was assigned to).
+    this.numberClosedIssues = 0;            //Closed issues that he/she was envolved with (closed and/or was assigned to).
+    this.openedIssues = [];                 //Opened issues that he/she is envolved with (opened and/or was assigned to). The most recently opened issue will be the first of the array
+    this.closedIssues = [];                 //Closed issues that he/she was envolved with (closed and/or was assigned to). The most recently closed issue will be the first of the array
+    this.numberForks = 0;
+    this.lastForked = new Date();
+    this.numberPulls = 0;
+    this.numberOpenedPulls = 0;
+    this.numberMerges = 0;
+    this.openedPulls = [];            //the most recently opened pull will be the first of the array
+    this.merges = [];                 //the most recently merged pull will be the first of the array
+    this.lastPullRequest;            //it can be closed or opened
+
+    //TODO:------- not extracted -----------
+    this.commitsPerWeek = 0;                //Does the contributor work well in each week?!
+    this.delectionsAdditionsPerWeek = 0;    //Are the commits significant?
+*/
+
+/*EXAMPLE AN OF OBJECT THAT HOLDS ALL THE INFO ABOUT A JEKNOWLEDGE'S MEMBER AND THEIR CONTRIBUTIONS FOR THE JEK REPOS
+    this.name = "";
+    this.login = "";
+    this.link = "";
+    this.numberCommits = 0;
+    this.lastCommit = {date : new Date(), description : "", comments : []};
+    this.totalIssues = 0;                   //Issues that he/she is envolved with (closed and/or opened and/or was assigned to).
+    this.numberOpenedIssues = 0;            //Opened issues that he/she is envolved with (opened and/or was assigned to).
+    this.numberClosedIssues = 0;            //Closed issues that he/she was envolved with (closed and/or was assigned to).
+    this.openedIssues = [];                 //Opened issues that he/she is envolved with (opened and/or was assigned to).
+    this.closedIssues = [];                 //Closed issues that he/she was envolved with (closed and/or was assigned to).
+    this.numberForks = 0;
+    this.lastForked = new Date();
+    this.numberPulls = 0;
+    this.numberOpenedPulls = 0;
+    this.numberMerges = 0;
+    this.openedPulls = [];            //the most recently opened pull will be the first of the array
+    this.merges = [];                 //the most recently merged pull will be the first of the array
+    this.lastPullRequest;            //it can be closed or opened
+
+    //TODO:------- not extracted -----------
+    this.commitsPerWeek = 0;                //Does the contributor work well in each week?!
+    this.delectionsAdditionsPerWeek = 0;    //Are the commits significant?
+*/
