@@ -6,7 +6,6 @@ class GithubBucket {
     this.allRepos = {};
     this.numberMembers = 0;
     this.members = {};
-    this.totalWatchers = 0;
     this.totalSizeKB = 0;
     this.totalCommits = 0;
     this.totalDownloads = 0;
@@ -17,13 +16,16 @@ class GithubBucket {
     this.totalOpenedPulls = 0;
     this.totalMerges = 0;         //count as closed Pulls
     this.totalPulls = 0;
+    this.totalWatchers = 0;
+    this.watchersNames = [];
+    this.totalStargazers = 0;
+    this.stargazersNames = [];
 
     //TODO:------- not extracted -----------
     this.totalContributors = 0;
     this.contributors = [];
     this.numberFollowers = 0;
     this.followersNames = [];
-    this.totalStargazers = 0;
     this.totalComments = 0;
     this.totalInvitations = 0;
     this.totalReleases = 0;
@@ -38,6 +40,7 @@ class GithubBucket {
     this.lastPullRequest;            //it can be closed or opened
     this.lastOpenedPull;
     this.lastMerge;                 //or last closed pull request
+    this.lastMilestone;             //issue or pull request
     //SOME EXTRA STATS
     this.commitsPerDay = 0;
     this.commitsPerWeek = 0;
@@ -434,7 +437,7 @@ Github = {
 
           if(githubInfo.members.hasOwnProperty(pullRequest.data.user.login)){
             githubInfo.members[pullRequest.data.user.login].numberPulls = this.incrementing(githubInfo.members[pullRequest.data.user.login].numberPulls, 1);
-            ithubInfo.members[pullRequest.data.user.login].numberOpenedPulls = 0;
+            githubInfo.members[pullRequest.data.user.login].numberOpenedPulls = 0;
             githubInfo.members[pullRequest.data.user.login].numberMerges = 0;
 
             if(typeof (githubInfo.members[pullRequest.data.user.login].lastPullRequest)  === 'undefined'){
@@ -466,13 +469,49 @@ Github = {
             githubInfo.allRepos[repoName].merges.push(newPull);
             githubInfo.allRepos[repoName].numberMerges = this.incrementing(githubInfo.allRepos[repoName].numberMerges, 1);
           }
-
+        }
+        //EXTRACTING INFO ABOUT WATCHERS....
+        try{
+          watchersResults = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + repoName + "/subscribers?access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
+        } catch (e) {
+          console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT WATCHERS IN THIS REPOSITORY: " + repoName);
+          console.log("THE ERROR: ", e);
+          return;
         }
 
+        githubInfo.allRepos[repoName].watchersNames = [];
+        for (var l = 0; l < watchersResults.data.length; l++) {
+          githubInfo.allRepos[repoName].numberWatchers = this.incrementing(githubInfo.allRepos[repoName].numberWatchers, 1);
+          githubInfo.numberWatchers++;
+          githubInfo.allRepos[repoName].watchersNames.push(watchersResults.data[l].login);
+          if(githubInfo.watchersNames.indexOf(watchersResults.data[l].login) === -1){
+            githubInfo.watchersNames.push(watchersResults.data[l].login);
+          }
+        }
+        //EXTRACTING INFO ABOUT STARGAZERS....
+        try{
+          stargazersResults = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + repoName + "/stargazers?access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
+        } catch (e) {
+          console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT WATCHERS IN THIS REPOSITORY: " + repoName);
+          console.log("THE ERROR: ", e);
+          return;
+        }
 
-        //TODO: redundancy of forks, issues, commits...
+        githubInfo.allRepos[repoName].stargazersNames = [];
+        for (var l = 0; l < stargazersResults.data.length; l++) {
+          githubInfo.allRepos[repoName].numberStargazers = this.incrementing(githubInfo.allRepos[repoName].numberStargazers, 1);
+          githubInfo.numberStargazers++;
+          githubInfo.allRepos[repoName].stargazersNames.push(stargazersResults.data[l].login);
+          if(githubInfo.stargazersNames.indexOf(stargazersResults.data[l].login) === -1){
+            githubInfo.stargazersNames.push(stargazersResults.data[l].login);
+          }
+        }
+        console.log(repoName);
+        console.log(githubInfo.allRepos[repoName].stargazersNames);
+
         //TODO:EXTRACT INFO LEFT
         //TODO: calculate lasts
+        //TODO: redundancy of forks, issues, commits...
         //TODO: run final tests to assure that everything is stable and all info is reliable
         //TODO:modularize code to allow different organizations get statistics from their platforms
 
@@ -532,14 +571,12 @@ Github = {
     this.openedPulls = [];
     this.merges = [];
     this.lastPullRequest;            //it can be closed or opened
-
-    //TODO:------- not extracted -----------
     this.numberWatchers = 0;
     this.watchersNames = [];
     this.numberStargazers = 0;
     this.stargazersNames = [];
-    this.numberInvitations = 0;
-    this.invitationList = [];
+
+    //TODO:------- not extracted -----------
     this.numberComments = 0;
     this.numberReleases = 0;
     this.releases = [];
@@ -548,7 +585,6 @@ Github = {
     this.defaultBranch = "";
     this.lastRelease = new Date();
     this.lastEvent = new Date();
-    this.lastInvitation = new Date();
 */
 
 /*EXAMPLE OF AN OBJECT THAT HOLDS ALL THE INFO ABOUT A CONTRIBUTOR AND HIS CONTRIBUTIONS
