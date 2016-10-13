@@ -24,15 +24,15 @@ class GithubBucket {
     this.contributorsNames = [];
     this.numberFollowers = 0;
     this.numberFollowing = 0;
-
-    this.lastEvent;
-    this.lastForked;
-    this.lastCommit;
-    this.lastClosedIssue;
-    this.lastOpenedIssues;
-    this.lastPullRequest;            //it can be closed or opened
-    this.lastOpenedPull;
-    this.lastMerge;                 //or last closed pull request
+    this.lastEvent = {};
+    this.lastCommit = {};
+    this.lastForked = {};
+    this.lastPullRequest = {};            //it can be closed or opened
+    this.lastIssue = {};
+    this.lastOpenedPull = {};
+    this.lastMerge = {};                 //or last closed pull request
+    this.lastClosedIssue = {};
+    this.lastOpenedIssue = {};
     this.lastMilestone;             //issue or pull request
   }
 }
@@ -155,7 +155,7 @@ Github = {
         try{
           contributorsResults = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + repoName + "/stats/contributors?per_page=150&access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
           //Sometimes the API returns an undefined file
-          while(typeof contributorsResults.data.length === 'undefined'){
+          while(typeof (contributorsResults.data.length) === 'undefined'){
               contributorsResults = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + repoName + "/stats/contributors?per_page=50&access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
           }
         } catch (e) {
@@ -551,27 +551,104 @@ Github = {
           githubInfo.allRepos[repoName].lastEvent.name = lastEventResults.data[0].actor.login;
           githubInfo.allRepos[repoName].lastEvent.date = new Date(lastEventResults.data[0].created_at).toUTCString();
         }
-        if (i === 2) {
-          console.log("XAU XAU LOOOOSER");
-          break;
-        }
     }
 
     //EXTRACTING INFO ABOUT THE LAST EVENTS OF JEKNOWLEDGE GITHUB ACCOUNT....
-    /*this.lastEvent;
-    this.lastForked;
-    this.lastCommit;
-    this.lastClosedIssue;
-    this.lastOpenedIssues;
-    this.lastPullRequest;            //it can be closed or opened
-    this.lastOpenedPull;
-    this.lastMerge;                 //or last closed pull request
-    this.lastMilestone;             //issue or pull request
-    */
+    try{
+      eventsJekResults = HTTP.call('GET', "https://api.github.com/orgs/jeknowledge/events?per_page=150&access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
+    } catch (e) {
+      console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT THE LAST EVENT IN THIS REPOSITORY: " + repoName);
+      console.log("THE ERROR: ", e);
+      return;
+    }
+    let counter = 0;
+    let checkinIssue = 0;
+    let checkinPull = 0;
+    for (var l = 0; l < eventsJekResults.data.length; l++) {
+      if (l === 0) {
+        githubInfo.lastEvent.type = eventsJekResults.data[l].type;
+        githubInfo.lastEvent.name = eventsJekResults.data[l].actor.login;
+        githubInfo.lastEvent.repoName = eventsJekResults.data[l].repo.name;
+        githubInfo.lastEvent.date = new Date(eventsJekResults.data[l].created_at).toUTCString();
+      }
 
+      if (eventsJekResults.data[l].type === "PushEvent" && Object.keys(githubInfo.lastCommit).length === 0) {
+        githubInfo.lastCommit.name = eventsJekResults.data[l].actor.login;
+        githubInfo.lastEvent.repoName = eventsJekResults.data[l].repo.name;
+        githubInfo.lastCommit.description = eventsJekResults.data[l].payload.commits.message;
+        githubInfo.lastCommit.date = new Date(eventsJekResults.data[l].created_at).toUTCString();
+        counter++;
+      }
 
+      if (eventsJekResults.data[l].type === "ForkEvent" && Object.keys(githubInfo.lastForked).length === 0) {
+        githubInfo.lastEvent.repoName = eventsJekResults.data[l].repo.name;
+        githubInfo.lastForked.name = eventsJekResults.data[l].actor.login;
+        githubInfo.lastForked.date = new Date(eventsJekResults.data[l].created_at).toUTCString();
+        counter++;
+      }
 
+      if (eventsJekResults.data[l].type === "PullRequestEvent" && ((eventsJekResults.data[l].payload.action === "opened" && Object.keys(githubInfo.lastOpenedPull).length === 0) || (eventsJekResults.data[l].payload.action === "closed" && Object.keys(githubInfo.lastMerge).length === 0)) ) {
+        checkinPull = 1;
+        let newPull = new PullRequest();
+        newPull.repoName = eventsJekResults.data[l].repo.name;
+        newPull.title = eventsJekResults.data[l].payload.pull_request.title;
+        newPull.login = eventsJekResults.data[l].actor.login;
+        newPull.createdAt =  new Date(eventsJekResults.data[l].payload.pull_request.created_at).toUTCString();
+        newPull.updatedAt =  new Date(eventsJekResults.data[l].payload.pull_request.updated_at).toUTCString();;
+        newPull.mergedAt =  new Date(eventsJekResults.data[l].payload.pull_request.merged_at).toUTCString();;
+        newPull.assignees = eventsJekResults.data[l].payload.pull_request.assignees;
+        newPull.milestone = eventsJekResults.data[l].payload.pull_request.milestone;
+        newPull.body = eventsJekResults.data[l].payload.pull_request.body;
+        newPull.numberComments = eventsJekResults.data[l].payload.pull_request.comments;
+        newPull.numberCommits = eventsJekResults.data[l].payload.pull_request.commits;
+        newPull.numberDelections = eventsJekResults.data[l].payload.pull_request.deletions;
+        newPull.numberInsertions = eventsJekResults.data[l].payload.pull_request.additions;
+        newPull.mergeConflicts = !eventsJekResults.data[l].payload.pull_request.mergeable;
+        newPull.changed_files = eventsJekResults.data[l].payload.pull_request.changed_files;
 
+        if (!checkinPull) {
+          githubInfo.lastPullRequest = newPull;
+          checkinPull = 1;
+        }
+
+        if (eventsJekResults.data[l].payload.action === "opened") {
+          githubInfo.lastOpenedPull = newPull;
+          counter++;
+        } else {
+          githubInfo.lastMerge = newPull;
+          counter++;
+        }
+      }
+
+      if (eventsJekResults.data[l].type === "IssuesEvent" && ((eventsJekResults.data[l].payload.action === "opened" && Object.keys(githubInfo.lastOpenedIssue).length === 0) || (eventsJekResults.data[l].payload.action === "closed" && Object.keys(githubInfo.lastClosedIssue).length === 0)) ) {
+        checkinIssue = 1;
+        let newIssue = new Issue();
+        newIssue.repoName = eventsJekResults.data[l].repo.name;
+        newIssue.openedby = eventsJekResults.data[l].actor.login;
+        newIssue.milestone = new Date(eventsJekResults.data[l].payload.issue.milestone).toUTCString();              //TIMEZONE IS ALREADY THE SAME AS OURS
+        newIssue.createdAt = new Date(eventsJekResults.data[l].payload.issue.created_at).toUTCString();              //TIMEZONE IS ALREADY THE SAME AS OURS
+        newIssue.updatedAt = new Date(eventsJekResults.data[l].payload.issue.updated_at).toUTCString();              //TIMEZONE IS ALREADY THE SAME AS OURS
+        newIssue.title = eventsJekResults.data[l].payload.issue.title;
+        newIssue.description = eventsJekResults.data[l].payload.issue.body;
+        newIssue.numberComments = eventsJekResults.data[l].payload.issue.comments;
+
+        if (!checkinIssue) {
+          githubInfo.lastIssue = newIssue;
+          checkinIssue = 1;
+        }
+
+        if (eventsJekResults.data[l].payload.action === "opened") {
+          githubInfo.lastOpenedIssue = newIssue;
+          counter++;
+        } else {
+          githubInfo.lastClosedIssue = newIssue;
+          counter++;
+        }
+      }
+      if(counter === 6){
+        break;
+      }
+    }
 
     //TODO: calculate last milestone of a repository
     //TODO: calculate last contribution of each member and contributor
@@ -579,9 +656,8 @@ Github = {
     //TODO: use .legth instead of incrementing
     //TODO: redundancy of forks, issues, commits...
     //TODO: run final tests to assure that everything is stable and all info is reliable
-    //TODO:modularize code to allow different organizations get statistics from their platforms
+    //TODO: modularize code to allow different organizations get statistics from their platforms
 
-    this.calculateLasts(githubInfo);
     GitHubCollection.insert(githubInfo);
 
 
@@ -597,11 +673,9 @@ Github = {
     return variable;
   }
 
-
-
 };
 
-
+//--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 /*EXAMPLE OF AN OBJECT THAT HOLDS ALL THE INFO ABOUT ONE REPOSITORY
     this.name = "";
     this.programLanguage = "";
@@ -682,5 +756,4 @@ Github = {
     this.merges = [];                 //the most recently merged pull will be the first of the array
     this.lastPullRequest;            //it can be closed or opened
     this.lastContribution;
-
 */
