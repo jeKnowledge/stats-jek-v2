@@ -28,11 +28,9 @@ class GithubBucket {
     this.followersNames = [];
     this.totalComments = 0;
     this.totalInvitations = 0;
-    this.totalReleases = 0;
     this.lastInvitation;
     this.lastComment;
     this.lastEvent;
-    this.lastRelease;
     this.lastForked;
     this.lastCommit;
     this.lastClosedIssue;
@@ -137,6 +135,7 @@ Github = {
     for(let i = 0; i < repositoriesResults.data.length; i++){
         let repoName = repositoriesResults.data[i].name;
         githubInfo.allRepos[repoName] = {};
+        githubInfo.allRepos[repoName].defaultBranch = repositoriesResults.data[i].default_branch;
         githubInfo.allRepos[repoName].description = repositoriesResults.data[i].description;
         githubInfo.allRepos[repoName].programLanguage = repositoriesResults.data[i].language;
         githubInfo.allRepos[repoName].sizeKB = repositoriesResults.data[i].size;
@@ -375,7 +374,7 @@ Github = {
           try{
             pullRequest = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + repoName + "/pulls/" + (l+1) + "access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
           } catch (e) {
-            console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT PULL REQUESTS IN THIS REPOSITORY: " + repoName);
+            console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT PULL REQUEST NUMBER " + (l+1) + " IN THIS REPOSITORY: " + repoName);
             console.log("THE ERROR: ", e);
             return;
           }
@@ -492,7 +491,7 @@ Github = {
         try{
           stargazersResults = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + repoName + "/stargazers?access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
         } catch (e) {
-          console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT WATCHERS IN THIS REPOSITORY: " + repoName);
+          console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT STARGAZERS IN THIS REPOSITORY: " + repoName);
           console.log("THE ERROR: ", e);
           return;
         }
@@ -506,11 +505,43 @@ Github = {
             githubInfo.stargazersNames.push(stargazersResults.data[l].login);
           }
         }
-        console.log(repoName);
-        console.log(githubInfo.allRepos[repoName].stargazersNames);
 
-        //TODO:EXTRACT INFO LEFT
+        //EXTRACTING INFO ABOUT BRANCHES AND THEIR LAST COMMITS....
+        try{
+          branchesResults = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + repoName + "/branches?access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
+        } catch (e) {
+          console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT BRANCHES IN THIS REPOSITORY: " + repoName);
+          console.log("THE ERROR: ", e);
+          return;
+        }
+
+        githubInfo.allRepos[repoName].branchesNames = [];
+        for (var l = 0; l < branchesResults.data.length; l++) {
+          githubInfo.allRepos[repoName].numberBranches = this.incrementing(githubInfo.allRepos[repoName].numberBranches, 1);
+          githubInfo.numberBranches++;
+          let myBranch = {};
+          myBranch.name = branchesResults.data[l].name;
+          myBranch.lastCommit = {};
+          //EXTRACTING INFO ABOUT ITS LAST COMMITS....
+          try{
+            lastCommitResults = HTTP.call('GET', branchesResults.data[l].commit.url + "?access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
+          } catch (e) {
+            console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT THE LAST COMMIT IN THIS BRANCH: " + branchesResults.data[l].name + ", IN THIS REPOSITORY: " + repoName);
+            console.log("THE ERROR: ", e);
+            return;
+          }
+          myBranch.lastCommit = {};
+          myBranch.lastCommit.name = lastCommitResults.data.commit.committer.name;
+          myBranch.lastCommit.description = lastCommitResults.data.commit.message;
+          myBranch.lastCommit.date = new Date(lastCommitResults.data.commit.committer.date).toUTCString();
+
+          githubInfo.allRepos[repoName].branchesNames.push(myBranch);
+
+        }
+        console.log("PASSEI");
+
         //TODO: calculate lasts
+        //TODO: use .legth instead of incrementing
         //TODO: redundancy of forks, issues, commits...
         //TODO: run final tests to assure that everything is stable and all info is reliable
         //TODO:modularize code to allow different organizations get statistics from their platforms
@@ -575,16 +606,14 @@ Github = {
     this.watchersNames = [];
     this.numberStargazers = 0;
     this.stargazersNames = [];
+    this.numberBranches = 0;
+    this.branchesNames = [];
+    this.defaultBranch = "";
 
     //TODO:------- not extracted -----------
     this.numberComments = 0;
-    this.numberReleases = 0;
-    this.releases = [];
-    this.numberBranches = 0;
-    this.branchesList = [];
-    this.defaultBranch = "";
-    this.lastRelease = new Date();
     this.lastEvent = new Date();
+    this.lastMilestone = new Date();
 */
 
 /*EXAMPLE OF AN OBJECT THAT HOLDS ALL THE INFO ABOUT A CONTRIBUTOR AND HIS CONTRIBUTIONS
