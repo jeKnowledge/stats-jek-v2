@@ -20,16 +20,11 @@ class GithubBucket {
     this.watchersNames = [];
     this.totalStargazers = 0;
     this.stargazersNames = [];
-
-    //TODO:------- not extracted -----------
-    this.totalContributors = 0;
-    this.contributors = [];
+    this.totalDifferentContributors = 0;
+    this.contributorsNames = [];
     this.numberFollowers = 0;
-    this.followersNames = [];
-    this.totalComments = 0;
-    this.totalInvitations = 0;
-    this.lastInvitation;
-    this.lastComment;
+    this.numberFollowing = 0;
+
     this.lastEvent;
     this.lastForked;
     this.lastCommit;
@@ -39,10 +34,6 @@ class GithubBucket {
     this.lastOpenedPull;
     this.lastMerge;                 //or last closed pull request
     this.lastMilestone;             //issue or pull request
-    //SOME EXTRA STATS
-    this.commitsPerDay = 0;
-    this.commitsPerWeek = 0;
-    this.commitsPerYear = 0;
   }
 }
 
@@ -91,7 +82,7 @@ Github = {
     //BUCKET THAT CONTAINS ALL THE DATA -------------------------------------------------------------------
     let githubInfo = new GithubBucket();
 
-    //LETS EXTRACT INFO ABOUT THE M EMBERS -----------------------------------------------------------------------
+    //LETS EXTRACT INFO ABOUT THE MEMBERS -----------------------------------------------------------------------
     let membersResults;
     try{
       membersResults = HTTP.call('GET', "https://api.github.com/orgs/jeknowledge/members?per_page=150&access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
@@ -140,6 +131,8 @@ Github = {
         githubInfo.allRepos[repoName].programLanguage = repositoriesResults.data[i].language;
         githubInfo.allRepos[repoName].sizeKB = repositoriesResults.data[i].size;
         githubInfo.allRepos[repoName].url = repositoriesResults.data[i].html_url;
+        githubInfo.allRepos[repoName].numberFollowers = repositoriesResults.data[i].followers;
+        githubInfo.allRepos[repoName].numberFollowing = repositoriesResults.data[i].following;
         githubInfo.allRepos[repoName].createdAt = new Date(repositoriesResults.data[i].created_at).toUTCString();   //TIMEZONE IS ALREADY THE SAME AS OURS
         githubInfo.allRepos[repoName].lastUpdate = new Date(repositoriesResults.data[i].updated_at).toUTCString();  //TIMEZONE IS ALREADY THE SAME AS OURS
 
@@ -186,6 +179,11 @@ Github = {
           }
           githubInfo.allRepos[repoName].contributors[contributorsResults.data[j].author.login].name = contributorInfo.data.name;
           githubInfo.allRepos[repoName].contributors[contributorsResults.data[j].author.login].numberCommits = this.incrementing(githubInfo.allRepos[repoName].contributors[contributorsResults.data[j].author.login].numberCommits, contributorsResults.data[j].total);
+
+          if (githubInfo.contributorsNames.indexOf(contributorsResults.data[j].author.login) !== -1) {
+            githubInfo.contributorsNames.push(contributorsResults.data[j].author.login);
+            githubInfo.totalDifferentContributors++;
+          }
 
           //these are the commits made since jeknowledge forked or created the repositories (the whole repository can have more commits)
           githubInfo.allRepos[repoName].commitsJek = this.incrementing(githubInfo.allRepos[repoName].commitsJek, contributorsResults.data[j].total);
@@ -369,7 +367,6 @@ Github = {
           return;
         }
 
-
         for (var l = 0; l < pullsResults.data.length; l++) {
           try{
             pullRequest = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + repoName + "/pulls/" + (l+1) + "access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
@@ -469,6 +466,7 @@ Github = {
             githubInfo.allRepos[repoName].numberMerges = this.incrementing(githubInfo.allRepos[repoName].numberMerges, 1);
           }
         }
+
         //EXTRACTING INFO ABOUT WATCHERS....
         try{
           watchersResults = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + repoName + "/subscribers?access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
@@ -487,6 +485,7 @@ Github = {
             githubInfo.watchersNames.push(watchersResults.data[l].login);
           }
         }
+
         //EXTRACTING INFO ABOUT STARGAZERS....
         try{
           stargazersResults = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + repoName + "/stargazers?access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
@@ -552,32 +551,40 @@ Github = {
           githubInfo.allRepos[repoName].lastEvent.name = lastEventResults.data[0].actor.login;
           githubInfo.allRepos[repoName].lastEvent.date = new Date(lastEventResults.data[0].created_at).toUTCString();
         }
+        if (i === 2) {
+          console.log("XAU XAU LOOOOSER");
+          break;
+        }
+    }
+
+    //EXTRACTING INFO ABOUT THE LAST EVENTS OF JEKNOWLEDGE GITHUB ACCOUNT....
+    /*this.lastEvent;
+    this.lastForked;
+    this.lastCommit;
+    this.lastClosedIssue;
+    this.lastOpenedIssues;
+    this.lastPullRequest;            //it can be closed or opened
+    this.lastOpenedPull;
+    this.lastMerge;                 //or last closed pull request
+    this.lastMilestone;             //issue or pull request
+    */
 
 
 
 
 
+    //TODO: calculate last milestone of a repository
+    //TODO: calculate last contribution of each member and contributor
+    //TODO: calculate statistics
+    //TODO: use .legth instead of incrementing
+    //TODO: redundancy of forks, issues, commits...
+    //TODO: run final tests to assure that everything is stable and all info is reliable
+    //TODO:modularize code to allow different organizations get statistics from their platforms
 
-
-
-        //TODO: calculate lasts
-        //TODO: use .legth instead of incrementing
-        //TODO: redundancy of forks, issues, commits...
-        //TODO: run final tests to assure that everything is stable and all info is reliable
-        //TODO:modularize code to allow different organizations get statistics from their platforms
-
-
-      }
-
+    this.calculateLasts(githubInfo);
     GitHubCollection.insert(githubInfo);
 
 
-
-  },
-
-  //METHOD THAT CALCULATES THE TOTAL VALUES ABOUT JEKNOWLEDGE'S GITHUB ACCOUNT AND THE TOTAL VALUES OF ITS MEMBERS
-  //
-  calculateTotals : function(){
 
   },
 
@@ -630,10 +637,7 @@ Github = {
     this.branchesNames = [];
     this.defaultBranch = "";
     this.lastEvent;
-
-    //TODO:------- not extracted -----------
-    this.numberComments = 0;
-    this.lastMilestone = new Date();
+    this.lastMilestone;
 */
 
 /*EXAMPLE OF AN OBJECT THAT HOLDS ALL THE INFO ABOUT A CONTRIBUTOR AND HIS CONTRIBUTIONS
@@ -655,11 +659,7 @@ Github = {
     this.openedPulls = [];            //the most recently opened pull will be the first of the array
     this.merges = [];                 //the most recently merged pull will be the first of the array
     this.lastPullRequest;            //it can be closed or opened
-
-    //TODO:------- not extracted -----------
     this.lastContribution;
-    this.commitsPerWeek = 0;                //Does the contributor work well in each week?!
-    this.delectionsAdditionsPerWeek = 0;    //Are the commits significant?
 */
 
 /*EXAMPLE AN OF OBJECT THAT HOLDS ALL THE INFO ABOUT A JEKNOWLEDGE'S MEMBER AND THEIR CONTRIBUTIONS FOR THE JEK REPOS
@@ -681,9 +681,6 @@ Github = {
     this.openedPulls = [];            //the most recently opened pull will be the first of the array
     this.merges = [];                 //the most recently merged pull will be the first of the array
     this.lastPullRequest;            //it can be closed or opened
-
-    //TODO:------- not extracted -----------
     this.lastContribution;
-    this.commitsPerWeek = 0;                //Does the contributor work well in each week?!
-    this.delectionsAdditionsPerWeek = 0;    //Are the commits significant?
+
 */
