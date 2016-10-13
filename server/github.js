@@ -538,7 +538,27 @@ Github = {
           githubInfo.allRepos[repoName].branchesNames.push(myBranch);
 
         }
-        console.log("PASSEI");
+        //EXTRACTING INFO ABOUT THE LAST EVENT OF THE REPOSITORY....
+        try{
+          lastEventResults = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + repoName + "/events?access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
+        } catch (e) {
+          console.log("IT WAS NOT POSSIBLE TO ACCESS INFORMATION ABOUT THE LAST EVENT IN THIS REPOSITORY: " + repoName);
+          console.log("THE ERROR: ", e);
+          return;
+        }
+        githubInfo.allRepos[repoName].lastEvent = {};
+        for (var l = 0; l < lastEventResults.data.length; l++) {
+          githubInfo.allRepos[repoName].lastEvent.type = lastEventResults.data[0].type;
+          githubInfo.allRepos[repoName].lastEvent.name = lastEventResults.data[0].actor.login;
+          githubInfo.allRepos[repoName].lastEvent.date = new Date(lastEventResults.data[0].created_at).toUTCString();
+        }
+
+
+
+
+
+
+
 
         //TODO: calculate lasts
         //TODO: use .legth instead of incrementing
@@ -547,7 +567,7 @@ Github = {
         //TODO:modularize code to allow different organizations get statistics from their platforms
 
 
-        }
+      }
 
     GitHubCollection.insert(githubInfo);
 
@@ -609,10 +629,10 @@ Github = {
     this.numberBranches = 0;
     this.branchesNames = [];
     this.defaultBranch = "";
+    this.lastEvent;
 
     //TODO:------- not extracted -----------
     this.numberComments = 0;
-    this.lastEvent = new Date();
     this.lastMilestone = new Date();
 */
 
@@ -637,6 +657,7 @@ Github = {
     this.lastPullRequest;            //it can be closed or opened
 
     //TODO:------- not extracted -----------
+    this.lastContribution;
     this.commitsPerWeek = 0;                //Does the contributor work well in each week?!
     this.delectionsAdditionsPerWeek = 0;    //Are the commits significant?
 */
@@ -662,6 +683,7 @@ Github = {
     this.lastPullRequest;            //it can be closed or opened
 
     //TODO:------- not extracted -----------
+    this.lastContribution;
     this.commitsPerWeek = 0;                //Does the contributor work well in each week?!
     this.delectionsAdditionsPerWeek = 0;    //Are the commits significant?
 */
