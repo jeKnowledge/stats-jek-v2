@@ -33,7 +33,8 @@ class GithubBucket {
     this.lastMerge = {};                 //or last closed pull request
     this.lastClosedIssue = {};
     this.lastOpenedIssue = {};
-    this.lastMilestone;             //issue or pull request
+    this.lastIssueMilestone;
+    this.lastPullMilestone;
   }
 }
 
@@ -551,6 +552,10 @@ Github = {
           githubInfo.allRepos[repoName].lastEvent.name = lastEventResults.data[0].actor.login;
           githubInfo.allRepos[repoName].lastEvent.date = new Date(lastEventResults.data[0].created_at).toUTCString();
         }
+        console.log("PASSEI");
+        if(i === 7){
+          break;
+        }
     }
 
     //EXTRACTING INFO ABOUT THE LAST EVENTS OF JEKNOWLEDGE GITHUB ACCOUNT....
@@ -711,7 +716,8 @@ Github = {
     this.branchesNames = [];
     this.defaultBranch = "";
     this.lastEvent;
-    this.lastMilestone;
+    this.lastIssueMilestone;
+    this.lastPullMilestone;
 */
 
 /*EXAMPLE OF AN OBJECT THAT HOLDS ALL THE INFO ABOUT A CONTRIBUTOR AND HIS CONTRIBUTIONS

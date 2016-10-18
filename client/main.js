@@ -5,7 +5,8 @@ import './main.html';
 
 Template.body.helpers({
   github : function(){
-   return GitHubCollection.find();
+    console.log(GitHubCollection.find().fetch());
+   return GitHubCollection.find().fetch();
   },
 /*
 	 facebook : function(){

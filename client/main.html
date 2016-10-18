@@ -8,15 +8,9 @@
       <span>GITHUB STATISTICS</span>
         <ul>
           {{#each github}}
-              {{> statsForm}}
+            {{this}}
           {{/each}}
         </ul>
     </div>
 
 </body>
-
-<template name="statsForm">
-      <li>MEMBROS:  {{numberMembers}}</li>
-
-      <li>TOTAL DE COMMITS:  {{totalCommits}}</li>
-</template>

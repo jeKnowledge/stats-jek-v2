@@ -1,10 +1,10 @@
 import { Meteor } from 'meteor/meteor';
 
 function init(){
-  GitHubCollection.remove({});
-  //VimeoCollection.remove({});
-  Github.callStats();
-  //Vimeo.callStats();
+  //GitHubCollection.remove({});
+  VimeoCollection.remove({});
+  //Github.callStats();
+  Vimeo.callStats();
 
 }
 

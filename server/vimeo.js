@@ -5,26 +5,31 @@ class VimeoBucket {
     this.createdAt = new Date();
     this.myLink = new String();
     this.mybio = new String();
-
     this.numberFollowers = 0;
     this.followersNames = [];
-
+    this.lastEvent = {};
+    this.totalLengthVideos = 0;
     this.totalOurVideos = 0;
-    this.ourVideos = [];
+    this.totalPlays = 0;
+
+    //TODO: to be extracted
+    this.totalOurVideos = 0;
+    this.ourVideos = [];      //ALREADY IN ORDER OF UPLOADING??
+
 
     this.totalAppearances = 0;
     this.appearances = [];
 
-    this.Albums = [];
-
-    this.totalPlays = 0;               //????
-    this.totalFinishes = 0;
-    this.totalLikes = 0;
+    this.collections = {};
     this.totalVideos = 0;
+
+    this.lastUploadVideo = {};
+    this.lastComment = {};
+    this.lastLiked = {};
+
+    this.totalLikes = 0;
     this.totalComments = 0;
     this.totalShares = 0;
-    this.totalDownloads = 0;
-    this.totalLengthVideos = 0;
   }
 }
 
@@ -36,12 +41,10 @@ class Video {
     this.description = new String();                                            //"null" in this case means that it has not any description at all
     this.lengthInSecs = 0;
     this.uploadedAt = new Date();
-    this.shares = [];                                                           //"null" in this case means that it was not shared
-    this.downloads = [];                                                        //"null" in this case means that it was not downloaded
     this.comments = [];                                                         //"null" in this case means that it was not commented
     this.likes = [{total : 0, names : [], links: []}];                          //"null" in this case means that it was not liked
-    this.finishes = [];
     this.plays = [];
+    this.tags = [];
   }
 }
 
@@ -50,19 +53,19 @@ Vimeo = {
 
   callStats : function(){
     //BUCKET THAT CONTAINS ALL THE DATA -------------------------------------------------------------------
-    var vimeoInfo = new VimeoBucket();
+    let vimeoInfo = new VimeoBucket();
 
     //LETS EXTRACT THE BASIC INFO ----------------------------------------------------------------------
     try{
-      var results = HTTP.call('GET', "https://api.vimeo.com/users/user6792054?access_token=" + Meteor.settings.TOKEN_JEK_VIMEO, {headers: {"User-Agent": "Meteor/1.0"}});
+      let results = HTTP.call('GET', "https://api.vimeo.com/users/user6792054?access_token=" + Meteor.settings.TOKEN_JEK_VIMEO, {headers: {"User-Agent": "Meteor/1.0"}});
     } catch(e) {
       console.log("AN ERROR OCURRED WHILE CALLING FOR VIMEO API: ", e);
     }
-    var results1 = JSON.parse(results.content);
+    let generalResults = JSON.parse(results.content);
 
-    vimeoInfo.createdAt = new Date(results1.created_time).toUTCString();
-    vimeoInfo.myLink = results1.link;
-    vimeoInfo.mybio = results1.bio;
+    vimeoInfo.createdAt = new Date(generalResults.created_time).toUTCString();
+    vimeoInfo.myLink = generalResults.link;
+    vimeoInfo.mybio = generalResults.bio;
 
 
     //LETS EXTRACT THE FOLLOWERS ----------------------------------------------------------------------
@@ -71,13 +74,27 @@ Vimeo = {
     } catch(e) {
       console.log("AN ERROR OCURRED WHILE CALLING FOR VIMEO API: ", e);
     }
-    results1 = JSON.parse(results.content);
+    followersResults = JSON.parse(results.content);
 
-    vimeoInfo.numberFollowers = results1.total;
+    vimeoInfo.numberFollowers = followersResults.data.length;
 
-    for(var i = 0; i < results1.data.length; i++){
-      vimeoInfo.followersNames[i] = results1.data[i].name;
+    for(let i = 0; i < followersResults.data.length; i++){
+      vimeoInfo.followersNames[i] = {};
+      vimeoInfo.followersNames[i].name = followersResults.data[i].name;
+      vimeoInfo.followersNames[i].link = followersResults.data[i].link;
     }
+
+    //LETS EXTRACT THE LAST EVENT ----------------------------------------------------------------------
+    try{
+      results = HTTP.call('GET', "https://api.vimeo.com/users/user6792054/activities?access_token=" + Meteor.settings.TOKEN_JEK_VIMEO, {headers: {"User-Agent": "Meteor/1.0"}});
+    } catch(e) {
+      console.log("AN ERROR OCURRED WHILE CALLING FOR VIMEO API: ", e);
+    }
+    eventsResults = JSON.parse(results.content);
+    vimeoInfo.lastEvent.type = eventsResults.data[0].type;
+    vimeoInfo.lastEvent.date = eventsResults.data[0].time;
+    vimeoInfo.lastEvent.video = eventsResults.data[0].clip.name;
+
 
     //LETS EXTRACT INFO ABOUT EACH UPLOADED VIDEO ----------------------------------------------------------------
     try{
@@ -85,37 +102,62 @@ Vimeo = {
     } catch(e) {
       console.log("AN ERROR OCURRED WHILE CALLING FOR VIMEO API: ", e);
     }
-    results1 = JSON.parse(results.content);
+    videoResults = JSON.parse(results.content);
 
-    vimeoInfo.totalOurVideos = results1.total;
-    for(var i = 0; i < results1.data.length; i++){
-      var newVideo = new Video();
+    vimeoInfo.totalOurVideos = videoResults.data.length;
+    vimeoInfo.totalVideos = videoResults.data.length;
+    for(let i = 0; i < videoResults.data.length; i++){
+      let newVideo = new Video();
       vimeoInfo.ourVideos.push(newVideo);
-      vimeoInfo.ourVideos[i].name = results1.data[i].name;                      //TODO: Some names might not appear in utf8 format -.-'
-      vimeoInfo.ourVideos[i].description = results1.data[i].description;
-      vimeoInfo.ourVideos[i].link = results1.data[i].link;
-      vimeoInfo.ourVideos[i].lengthInSecs = results1.data[i].duration;
-      vimeoInfo.ourVideos[i].uploadAt = new Date(results1.data[i].created_time).toUTCString();
+      vimeoInfo.ourVideos[i].name = videoResults.data[i].name;                      //TODO: Some names might not appear in utf8 format -.-'
+      vimeoInfo.ourVideos[i].description = videoResults.data[i].description;
+      vimeoInfo.ourVideos[i].link = videoResults.data[i].link;
+      vimeoInfo.ourVideos[i].lengthInSecs = videoResults.data[i].duration;
+      vimeoInfo.totalLengthVideos += videoResults.data[i].duration;
+
+      vimeoInfo.ourVideos[i].uploadAt = new Date(videoResults.data[i].created_time).toUTCString();
+      for (var l = 0; l < videoResults.data[i].tags.length; l++) {
+        vimeoInfo.ourVideos[i].tags.push(videoResults.data[i].tags[l].tag);
+      }
+      vimeoInfo.ourVideos[i].plays = videoResults.data[i].stats.plays;
+      vimeoInfo.totalPlays = videoResults.data[i].stats.plays;
+
       //EXTRACTING LIKES
       try{
-        var results2 = HTTP.call('GET', "https://api.vimeo.com" + results1.data[i].uri + "/likes?per_page=100&access_token=" + Meteor.settings.TOKEN_JEK_VIMEO, {headers: {"User-Agent": "Meteor/1.0"}});
+        let results = HTTP.call('GET', "https://api.vimeo.com" + videoResults.data[i].uri + "/likes?per_page=100&access_token=" + Meteor.settings.TOKEN_JEK_VIMEO, {headers: {"User-Agent": "Meteor/1.0"}});
       } catch(e) {
         console.log("AN ERROR OCURRED WHILE CALLING FOR VIMEO API: ", e);
       }
-      var results3 = JSON.parse(results2.content);
+      let likesResults = JSON.parse(results.content);
 
-      vimeoInfo.ourVideos[i].likes.total = results3.total;
+      vimeoInfo.ourVideos[i].likes.total = likesResults.total;
 
-        console.log(results3.total);
-      if (results3.total > 0){
-        console.log("LOL2");
+      if (likesResults.total > 0){
         vimeoInfo.totalLikes++;
-        for (var i = 0; i < results3.data.length; i++) {
-          vimeoInfo.ourVideos[i].likes.names[i] = results3.data[i].name;
-          vimeoInfo.ourVideos[i].likes.links[i] = results3.data[i].link;
+        for (let i = 0; i < likesResults.data.length; i++) {
+          vimeoInfo.ourVideos[i].likes.names[i] = likesResults.data[i].name;
+          vimeoInfo.ourVideos[i].likes.links[i] = likesResults.data[i].link;
         }
       }
     }
+
+    //LETS EXTRACT THE COLLECTIONS ----------------------------------------------------------------------
+    try{
+      results = HTTP.call('GET', "https://api.vimeo.com/users/user6792054/albums?access_token=" + Meteor.settings.TOKEN_JEK_VIMEO, {headers: {"User-Agent": "Meteor/1.0"}});
+    } catch(e) {
+      console.log("AN ERROR OCURRED WHILE CALLING FOR VIMEO API: ", e);
+    }
+    collectionsResults = JSON.parse(results.content);
+    for (var i = 0; i < collectionsResults.data.length; i++) {
+      vimeoInfo.collections[collectionsResults.data[i].name] = {};
+      vimeoInfo.collections[collectionsResults.data[i].name].createdAt = new Date(collectionsResults.data[i].created_time).toUTCString();
+      vimeoInfo.collections[collectionsResults.data[i].name].updatedAt = new Date(collectionsResults.data[i].modified_time).toUTCString();
+      //TODO:
+      //list of videos
+      //vimeoInfo.collections[collectionsResults.data[i].name].total;
+     }
+
+
 
     VimeoCollection.insert(vimeoInfo);
 
@@ -126,3 +168,9 @@ updateDatabase : function(){
 }
 
 };
+
+/*OTHER STATISTICS MIGHT BE AVAILABLE IN THE NEXT VERSION OF VIMEO API:
+    //totalFinishes
+    //totalShares
+    //totalDownloads
+*/
