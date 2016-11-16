@@ -2,9 +2,11 @@ import { Meteor } from 'meteor/meteor';
 
 function init(){
   //GitHubCollection.remove({});
-  VimeoCollection.remove({});
+  //VimeoCollection.remove({});
+  SlackCollection.remove({});
   //Github.callStats();
-  Vimeo.callStats();
+  //Vimeo.callStats();
+  Slack.callStats();
 
 }
 
