@@ -7,9 +7,9 @@ class SlackBucket {
         this.numberChannels = 0;
         this.channels = {};
 
-        this.channelsArchived = 0;
+        this.channelsArchived = {};
         this.numberChannelsArchived = 0;
-        this.channelsActive = 0;
+        this.channelsActive = {};
         this.numberChannelsActive = 0;
 
         //-- TODO: --
@@ -43,12 +43,6 @@ class SlackBucket {
         this.growthTotalMessagesPerMonth = 0.0;
         this.growthTotalMessagesPerYear = 0.0;
 
-        this.totalFilesPerDay = 0;
-        this.totalFilesPerWeek = 0;
-        this.totalFilesPerMonth = 0;
-        this.totalFilesPerYear = 0;
-        this.totalFiles = 0;
-
         this.newChannelsPerMonth = {};
         this.amountChannelsPerMonth = 0;
         this.newChannelsPerYear = {};
@@ -56,6 +50,37 @@ class SlackBucket {
 
     }
  }
+
+//CLASS THAT HOLDS ALL THE INFO ABOUT A SLACK CHANNEL
+class SlackChannel {
+    constructor() {
+        this.name = "",
+        this.is_active = "",
+        this.members = [],
+        this.num_members = 0,
+        this.topic = "",
+        this.purpose = "",
+        this.created_at = "",
+        this.creator = "",
+        this.latest = {};
+
+        //-- TODO: --
+        this.messagesPerDay = 0;
+        this.messagesPerWeek = 0;
+        this.messagesPerMonth = 0;
+        this.messagesPerYear = 0;
+
+        this.filesPerDay = 0;
+        this.filesPerWeek = 0;
+        this.filesPerMonth = 0;
+        this.filesPerYear = 0;
+
+        this.growthTotalMessagesPerDay = 0.0;
+        this.growthTotalMessagesPerWeek = 0.0;
+        this.growthTotalMessagesPerMonth = 0.0;
+        this.growthTotalMessagesPerYear = 0.0;
+    }
+}
 
 
 
@@ -98,76 +123,102 @@ Slack = {
 
         for (var i = 0; i < channelsResults.channels.length; i++) {
             slackInfo.numberChannels++;
+
+            newChannel = new SlackChannel();
+
             channelID = channelsResults.channels[i].id;
-            slackInfo.channels[channelID] = {};
-            slackInfo.channels[channelID].name = channelsResults.channels[i].name;
-            slackInfo.channels[channelID].members = channelsResults.channels[i].members;
-
-            for (var l = 0; l < slackInfo.channels[channelID].members.length; l++) {
-                let memberID = slackInfo.channels[channelID].members[l];
-                if (slackInfo.members.hasOwnProperty(memberID)){
-                    slackInfo.members[memberID].channelsParticipates.push(channelID);
-                }
-            }
-
-            slackInfo.channels[channelID].is_archived = channelsResults.channels[i].is_archived;
-            slackInfo.channels[channelID].num_members = channelsResults.channels[i].num_members;
-            slackInfo.channels[channelID].purpose = channelsResults.channels[i].purpose.value;
-            slackInfo.channels[channelID].topic = channelsResults.channels[i].topic.value;
-            slackInfo.channels[channelID].created_at = channelsResults.channels[i].created_at;
-
+            newChannel.name = channelsResults.channels[i].name;
+            newChannel.members = channelsResults.channels[i].members;
+            newChannel.is_archived = channelsResults.channels[i].is_archived;
+            newChannel.num_members = channelsResults.channels[i].num_members;
+            newChannel.purpose = channelsResults.channels[i].purpose.value;
+            newChannel.topic = channelsResults.channels[i].topic.value;
+            newChannel.created = channelsResults.channels[i].created;
             try{
             results = HTTP.call('GET', "https://slack.com/api/channels.info?count=500&channel=" + channelID + "&token=" + Meteor.settings.TOKEN_SLACK, {headers: {"User-Agent": "Meteor/1.0"}});
             } catch(e) {
             console.log("AN ERROR OCURRED WHILE CALLING FOR SLACK API: ", e);
             }
             let channelResult = JSON.parse(results.content);
-            slackInfo.channels[channelID].creator = channelResult.channel.creator;
             let creatorID = channelResult.channel.creator;
+
+            newChannel.creator = creatorID;
+            //calculating channels that members created
             if (slackInfo.members.hasOwnProperty(creatorID)){
                 slackInfo.members[creatorID].channelsCreated.push(channelID);
             }
 
-            slackInfo.channels[channelID].latest = {};
-            slackInfo.channels[channelID].latest = channelResult.channel.latest;
-
-            //LETS ANALYZE CHANNELS HISTORY ----------------------------------------------------------------------
-            try{
-            results = HTTP.call('GET', "https://slack.com/api/channels.history?channel=" + channelID + "&token=" + Meteor.settings.TOKEN_SLACK, {headers: {"User-Agent": "Meteor/1.0"}});
-            } catch(e) {
-            console.log("AN ERROR OCURRED WHILE CALLING FOR SLACK API: ", e);
-            }
-            historyResults = JSON.parse(results.content);
-            if(historyResults.messages.length){
-
-                // multiplied by 1000 so that the argument is in milliseconds, not seconds.
-                let date = new Date(historyResults.messages[0].ts.substring(0, historyResults.messages[0].ts.indexOf('.'))*1000);
-
-                /* Hours
-                //let hours = date.getHours();
-
-                // Minutes
-                let minutes = "0" + date.getMinutes();
-
-                // Seconds
-                let seconds = "0" + date.getSeconds();
-                */
-
-
+            newChannel.latest = {};
+            if(typeof(channelResult.channel.latest) !== 'undefined') {
+                newChannel.latest.type = channelResult.channel.latest.type;
+                newChannel.latest.user = channelResult.channel.latest.user;
+                newChannel.latest.text = channelResult.channel.latest.text;
+                newChannel.latest.ts = channelResult.channel.latest.ts;
             }
 
-
-
-
-            if(channelsResults.channels[i].is_archived){
+            slackInfo.channels[channelID] = newChannel;
+            if(newChannel.is_archived){
                 slackInfo.numberChannelsArchived++;
-                slackInfo.channelsArchived[channelID] = slackInfo.channels[channelID];
+                slackInfo.channelsArchived[channelID] = newChannel;
             } else {
                 slackInfo.numberChannelsActive++;
-                slackInfo.channelsActive[channelID] = slackInfo.channels[channelID];
+                slackInfo.channelsActive[channelID] = newChannel;
+                //calculating channels that members are involved in
+                for (var l = 0; l < slackInfo.channelsActive[channelID].members.length; l++) {
+                    let memberID = slackInfo.channelsActive[channelID].members[l];
+                    if (slackInfo.members.hasOwnProperty(memberID)){
+                        slackInfo.members[memberID].channelsParticipates.push(channelID);
+                    }
+                }
             }
+            return;
         }
+        //LETS ANALYZE CHANNELS HISTORY ----------------------------------------------------------------------
 
+        let yearInSeconds = 60*60*24*365;
+        let monthInSeconds = 60*60*24*30;
+        let weekInSeconds = 60*60*24*7;
+        let dayInSeconds = 60*60*24;
+        let currentTimeStamp = new Date().getTime()/1000;
+        for (var i = 0; i < array.length; i++) {
+            array[i]
+        }
+        try{
+        results = HTTP.call('GET', "https://slack.com/api/channels.history?latest=" + currentTimeStamp + "&oldest=" + (currentTimeStamp - dayInSeconds) + "&channel=" + channelID + "&token=" + Meteor.settings.TOKEN_SLACK, {headers: {"User-Agent": "Meteor/1.0"}});
+        } catch(e) {
+        console.log("AN ERROR OCURRED WHILE CALLING FOR SLACK API: ", e);
+        }
+        historyResults = JSON.parse(results.content);
+
+        if(historyResults.messages.length){
+            //Calculating number of messages per day in each channel
+
+
+
+
+
+
+            //console.log(historyResults.messages[0].ts);
+
+            // SLACK TIMESTAMP TO DATE: multiplied by 1000 so that the argument is in milliseconds, not seconds.
+            //let date = new Date(historyResults.messages[0].ts.substring(0, historyResults.messages[0].ts.indexOf('.'))*1000);
+
+            /* Hours
+            //let hours = date.getHours();
+
+            // Minutes
+            let minutes = "0" + date.getMinutes();
+
+            // Seconds
+            let seconds = "0" + date.getSeconds();
+            */
+
+            //DATE TO TIMESTAMP
+            //new Date().getTime()/1000;
+
+
+
+        }
 
         SlackCollection.insert(slackInfo);
 
@@ -191,50 +242,9 @@ Slack = {
                 messagesPerMonth = 0;
                 messagesPerYear = 0;
 
-                filesPerDay = 0;
-                filesPerWeek = 0;
-                filesPerMonth = 0;
-                filesPerYear = 0;
-
                 growthTotalMessagesPerDay = 0.0;
                 growthTotalMessagesPerWeek = 0.0;
                 growthTotalMessagesPerMonth = 0.0;
                 growthTotalMessagesPerYear = 0.0;
             };
-*/
-
-/*EXAMPLE AN OF OBJECT THAT HOLDS ALL THE INFO ABOUT A SLACK CHANNEL
-    this.id = { name = "",
-                is_active = "",
-                members = [],
-                num_members = 0,
-                topic = "",
-                purpose = "",
-                created_at = timestamp,
-                creator = "",
-                latest = {type = "", user = "", text = "", ts = 0}
-
-                -- TODO: --
-                messagesPerDay = 0;
-                messagesPerWeek = 0;
-                messagesPerMonth = 0;
-                messagesPerYear = 0;
-
-                filesPerDay = 0;
-                filesPerWeek = 0;
-                filesPerMonth = 0;
-                filesPerYear = 0;
-
-                growthTotalMessagesPerDay = 0.0;
-                growthTotalMessagesPerWeek = 0.0;
-                growthTotalMessagesPerMonth = 0.0;
-                growthTotalMessagesPerYear = 0.0;
-    };
-*/
-
-/*EXAMPLE AN OF OBJECT THAT HOLDS ALL THE INFO ABOUT A SLACK FILE
-    this.id = {
-
-    }
-
 */
