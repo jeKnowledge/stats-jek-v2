@@ -2,6 +2,8 @@
 //CLASS THAT HOLDS ALL THE INFO ABOUT SLACK STATS
 class SlackBucket {
     constructor() {
+        this.timestamp = new Date().getTime()/1000;
+
         this.numberMembers = 0;
         this.members = {};
         this.numberChannels = 0;
@@ -12,7 +14,19 @@ class SlackBucket {
         this.channelsActive = {};
         this.numberChannelsActive = 0;
 
+        this.totalMessagesPerDay = 0;
+        this.totalMessagesPerWeek = 0;
+        this.totalMessagesPerMonth = 0;
+        this.totalMessagesPerYear = 0;
+        this.totalMessages = 0;
+
         //-- TODO: --
+        this.totalMessagesPerDay = 0;
+        this.totalMessagesPerWeek = 0;
+        this.totalMessagesPerMonth = 0;
+        this.totalMessagesPerYear = 0;
+        this.totalMessages = 0;
+
         this.rankingMostActiveUsersDay = [];
         this.rankingMostActiveUsersWeek = [];
         this.rankingMostActiveUsersMonth = [];
@@ -31,12 +45,6 @@ class SlackBucket {
         this.rankingSentMoreMessagesPerDay = {};
         this.rankingSentMoreMessagesPerWeek = {};
         this.rankingSentMoreMessagesPerMonth = {};
-
-        this.totalMessagesPerDay = 0;
-        this.totalMessagesPerWeek = 0;
-        this.totalMessagesPerMonth = 0;
-        this.totalMessagesPerYear = 0;
-        this.totalMessages = 0;
 
         this.growthTotalMessagesPerDay = 0.0;
         this.growthTotalMessagesPerWeek = 0.0;
@@ -64,16 +72,18 @@ class SlackChannel {
         this.creator = "",
         this.latest = {};
 
-        //-- TODO: --
         this.messagesPerDay = 0;
         this.messagesPerWeek = 0;
         this.messagesPerMonth = 0;
         this.messagesPerYear = 0;
+        this.totalMessages = 0;
 
+        //-- TODO: --
         this.filesPerDay = 0;
         this.filesPerWeek = 0;
         this.filesPerMonth = 0;
         this.filesPerYear = 0;
+        this.totalFiles = 0;
 
         this.growthTotalMessagesPerDay = 0.0;
         this.growthTotalMessagesPerWeek = 0.0;
@@ -102,7 +112,8 @@ Slack = {
         }
         let membersResults = JSON.parse(results.content);
         let userID;
-        for (var i = 0; i < membersResults.members.length; i++) {
+        //"-1" because of the slackbot
+        for (var i = 0; i < membersResults.members.length-1; i++) {
             slackInfo.numberMembers++;
             userID = membersResults.members[i].id;
             slackInfo.members[userID] = {};
@@ -156,7 +167,14 @@ Slack = {
                 newChannel.latest.ts = channelResult.channel.latest.ts;
             }
 
-            slackInfo.channels[channelID] = newChannel;
+            //calculating messages frequency of each channel
+            let messagesFrequency = this.messagesChannelFrequency(channelID);
+            newChannel.messagesPerDay = messagesFrequency.messagesPerDay;
+            newChannel.messagesPerWeek = messagesFrequency.messagesPerWeek;
+            newChannel.messagesPerMonth = messagesFrequency.messagesPerMonth;
+            newChannel.messagesPerYear = messagesFrequency.messagesPerYear;
+            newChannel.totalMessages = messagesFrequency.totalMessages;
+
             if(newChannel.is_archived){
                 slackInfo.numberChannelsArchived++;
                 slackInfo.channelsArchived[channelID] = newChannel;
@@ -171,58 +189,115 @@ Slack = {
                     }
                 }
             }
-            return;
+            slackInfo.channels[channelID] = newChannel;
         }
-        //LETS ANALYZE CHANNELS HISTORY ----------------------------------------------------------------------
-
-        let yearInSeconds = 60*60*24*365;
-        let monthInSeconds = 60*60*24*30;
-        let weekInSeconds = 60*60*24*7;
-        let dayInSeconds = 60*60*24;
-        let currentTimeStamp = new Date().getTime()/1000;
-        for (var i = 0; i < array.length; i++) {
-            array[i]
-        }
-        try{
-        results = HTTP.call('GET', "https://slack.com/api/channels.history?latest=" + currentTimeStamp + "&oldest=" + (currentTimeStamp - dayInSeconds) + "&channel=" + channelID + "&token=" + Meteor.settings.TOKEN_SLACK, {headers: {"User-Agent": "Meteor/1.0"}});
-        } catch(e) {
-        console.log("AN ERROR OCURRED WHILE CALLING FOR SLACK API: ", e);
-        }
-        historyResults = JSON.parse(results.content);
-
-        if(historyResults.messages.length){
-            //Calculating number of messages per day in each channel
-
-
-
-
-
-
-            //console.log(historyResults.messages[0].ts);
-
-            // SLACK TIMESTAMP TO DATE: multiplied by 1000 so that the argument is in milliseconds, not seconds.
-            //let date = new Date(historyResults.messages[0].ts.substring(0, historyResults.messages[0].ts.indexOf('.'))*1000);
-
-            /* Hours
-            //let hours = date.getHours();
-
-            // Minutes
-            let minutes = "0" + date.getMinutes();
-
-            // Seconds
-            let seconds = "0" + date.getSeconds();
-            */
-
-            //DATE TO TIMESTAMP
-            //new Date().getTime()/1000;
-
-
-
-        }
+        
+        //calculating totals of messages frequency
+        let messagesTotal = this.messagesTotalFrequency(slackInfo);
+        slackInfo.totalMessagesPerDay += messagesTotal.totalMessagesPerDay;
+        slackInfo.totalMessagesPerMonth += messagesTotal.totalMessagesPerMonth;
+        slackInfo.totalMessagesPerYear += messagesTotal.totalMessagesPerYear;
+        slackInfo.totalMessagesPerWeek += messagesTotal.totalMessagesPerWeek;
+        slackInfo.totalMessages += messagesTotal.totalMessages;
 
         SlackCollection.insert(slackInfo);
 
     },
+
+    messagesChannelFrequency : function(channelID){
+        let yearInSeconds = 60*60*24*365;
+        let monthInSeconds = 60*60*24*30;
+        let weekInSeconds = 60*60*24*7;
+        let dayInSeconds = 60*60*24;
+        let messagesFrequency = {};
+
+        messagesFrequency.messagesPerDay = 0;
+        messagesFrequency.messagesPerWeek = 0;
+        messagesFrequency.messagesPerMonth = 0;
+        messagesFrequency.messagesPerYear = 0;
+        messagesFrequency.totalMessages = 0;
+
+        let latestTimestamp = new Date().getTime()/1000;
+
+        do {
+            try{
+                results = HTTP.call('GET', "https://slack.com/api/channels.history?latest=" + latestTimestamp  + "&channel=" + channelID + "&token=" + Meteor.settings.TOKEN_SLACK, {headers: {"User-Agent": "Meteor/1.0"}});
+            } catch(e) {
+                console.log("AN ERROR OCURRED WHILE CALLING FOR SLACK API: ", e);
+            }
+            historyResults = JSON.parse(results.content);
+            let currentTimestamp = new Date().getTime()/1000;
+            if (historyResults.messages.length >= 1) {
+                let m;
+                for (m = 0; m < historyResults.messages.length; m++) {
+                    //lets exclude warnings like "albert joined channel xpto" or "lisa left channel xyz"
+                    if(typeof(historyResults.messages[m].subtype) === 'undefined' || historyResults.messages[m].subtype === 'file_share' ){
+                        messagesFrequency.totalMessages++;
+                        if(this.parseSlackTimestamp(historyResults.messages[m].ts) >= (currentTimestamp - dayInSeconds) ){
+                            messagesFrequency.messagesPerDay++;
+                        }
+                        if(this.parseSlackTimestamp(historyResults.messages[m].ts) >= (currentTimestamp - weekInSeconds) ){
+                            messagesFrequency.messagesPerWeek++;
+                        }
+                        if(this.parseSlackTimestamp(historyResults.messages[m].ts) >= (currentTimestamp - monthInSeconds) ){
+                            messagesFrequency.messagesPerMonth++;
+                        }
+                        if(this.parseSlackTimestamp(historyResults.messages[m].ts) >= (currentTimestamp - yearInSeconds) ){
+                            messagesFrequency.messagesPerYear++;
+                        }
+                    }
+                }
+                latestTimestamp = historyResults.messages[m-1].ts;
+            }
+        } while(historyResults.has_more);
+
+        return messagesFrequency;
+    },
+
+    messagesTotalFrequency : function (slackInfo){
+        let myBucket = {};
+        myBucket.totalMessagesPerDay = 0;
+        myBucket.totalMessagesPerWeek = 0;
+        myBucket.totalMessagesPerMonth = 0;
+        myBucket.totalMessagesPerYear = 0;
+        myBucket.totalMessages = 0;
+
+        for (var key in slackInfo.channels) {
+          if (slackInfo.channels.hasOwnProperty(key)) {
+            myBucket.totalMessagesPerDay += slackInfo.channels[key].messagesPerDay;
+            myBucket.totalMessagesPerWeek += slackInfo.channels[key].messagesPerWeek;
+            myBucket.totalMessagesPerMonth += slackInfo.channels[key].messagesPerMonth;
+            myBucket.totalMessagesPerYear += slackInfo.channels[key].messagesPerYear;
+            myBucket.totalMessages += slackInfo.channels[key].totalMessages;
+          }
+        }
+        return myBucket;
+    },
+
+    // SLACK TIMESTAMP TO UNIX TIMESTAMP
+    parseSlackTimestamp : function (slackTimestamp){
+        return slackTimestamp.substring(0, slackTimestamp.indexOf('.'));
+        /* Hours
+        //let hours = date.getHours();
+
+        // Minutes
+        let minutes = "0" + date.getMinutes();
+
+        // Seconds
+        let seconds = "0" + date.getSeconds();
+        */
+    },
+
+    // UNIX TIMESTAMP TO DATE
+    timestampToDate : function(timestamp){
+        return (new Date(timestamp*1000));
+    },
+
+    // DATE TO UNIX TIMESTAMP
+    dateToTimestamp : function(date){
+        return date.getTime()/1000;
+    },
+
 
     updateDatabase : function(){
       db.slack.remove({});
@@ -248,3 +323,4 @@ Slack = {
                 growthTotalMessagesPerYear = 0.0;
             };
 */
+//TODO: Be carefull when slack resets slack history
