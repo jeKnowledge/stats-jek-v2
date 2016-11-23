@@ -21,12 +21,6 @@ class SlackBucket {
         this.totalMessages = 0;
 
         //-- TODO: --
-        this.totalMessagesPerDay = 0;
-        this.totalMessagesPerWeek = 0;
-        this.totalMessagesPerMonth = 0;
-        this.totalMessagesPerYear = 0;
-        this.totalMessages = 0;
-
         this.rankingMostActiveUsersDay = [];
         this.rankingMostActiveUsersWeek = [];
         this.rankingMostActiveUsersMonth = [];
@@ -191,7 +185,7 @@ Slack = {
             }
             slackInfo.channels[channelID] = newChannel;
         }
-        
+
         //calculating totals of messages frequency
         let messagesTotal = this.messagesTotalFrequency(slackInfo);
         slackInfo.totalMessagesPerDay += messagesTotal.totalMessagesPerDay;
