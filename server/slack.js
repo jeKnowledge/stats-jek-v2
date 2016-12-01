@@ -17,8 +17,20 @@ class SlackBucket {
         this.totalMessagesPerDay = 0;
         this.totalMessagesPerWeek = 0;
         this.totalMessagesPerMonth = 0;
+        this.totalMessagesPerThreeMonths = 0;
+        this.totalMessagesPerSixMonths = 0;
+        this.totalMessagesPerNineMonths = 0;
         this.totalMessagesPerYear = 0;
         this.totalMessages = 0;
+
+        this.totalFilesPerDay = 0;
+        this.totalFilesPerWeek = 0;
+        this.totalFilesPerMonth = 0;
+        this.totalFilesPerThreeMonths = 0;
+        this.totalFilesPerSixMonths = 0;
+        this.totalFilesPerNineMonths = 0;
+        this.totalFilesPerYear = 0;
+        this.totalFiles = 0;
 
         //-- TODO: --
         this.rankingMostActiveUsersDay = [];
@@ -32,7 +44,6 @@ class SlackBucket {
         this.rankingMostActiveChannelsMonth = [];
         this.rankingMostActiveChannelsYear = [];
         this.rankingMostActiveChannels = [];
-
 
         this.rankingCreatedMoreChannels = {};
         this.rankingMemberOfMoreChannels = {};
@@ -69,16 +80,22 @@ class SlackChannel {
         this.messagesPerDay = 0;
         this.messagesPerWeek = 0;
         this.messagesPerMonth = 0;
+        this.messagesPerThreeMonths = 0;
+        this.messagesPerSixMonths = 0;
+        this.messagesPerNineMonths = 0;
         this.messagesPerYear = 0;
-        this.totalMessages = 0;
+        this.messages = 0;
 
-        //-- TODO: --
         this.filesPerDay = 0;
         this.filesPerWeek = 0;
         this.filesPerMonth = 0;
+        this.filesPerThreeMonths = 0;
+        this.filesPerSixMonths = 0;
+        this.filesPerNineMonths = 0;
         this.filesPerYear = 0;
-        this.totalFiles = 0;
+        this.files = 0;
 
+        //TODO:-----
         this.growthTotalMessagesPerDay = 0.0;
         this.growthTotalMessagesPerWeek = 0.0;
         this.growthTotalMessagesPerMonth = 0.0;
@@ -161,13 +178,25 @@ Slack = {
                 newChannel.latest.ts = channelResult.channel.latest.ts;
             }
 
-            //calculating messages frequency of each channel
-            let messagesFrequency = this.messagesChannelFrequency(channelID);
-            newChannel.messagesPerDay = messagesFrequency.messagesPerDay;
-            newChannel.messagesPerWeek = messagesFrequency.messagesPerWeek;
-            newChannel.messagesPerMonth = messagesFrequency.messagesPerMonth;
-            newChannel.messagesPerYear = messagesFrequency.messagesPerYear;
-            newChannel.totalMessages = messagesFrequency.totalMessages;
+            //calculating messages and files stats of each channel
+            let statsChannel = this.statsChannel(slackInfo, channelID);
+            newChannel.messagesPerDay = statsChannel.messagesPerDay;
+            newChannel.messagesPerWeek = statsChannel.messagesPerWeek;
+            newChannel.messagesPerMonth = statsChannel.messagesPerMonth;
+            newChannel.messagesPerThreeMonths = statsChannel.messagesPerThreeMonths;
+            newChannel.messagesPerSixMonths = statsChannel.messagesPerSixMonths;
+            newChannel.messagesPerNineMonths = statsChannel.messagesPerNineMonths;
+            newChannel.messagesPerYear = statsChannel.messagesPerYear;
+            newChannel.totalMessages = statsChannel.totalMessages;
+
+            newChannel.filesPerDay = statsChannel.filesPerDay;
+            newChannel.filesPerWeek = statsChannel.filesPerWeek;
+            newChannel.filesPerMonth = statsChannel.filesPerMonth;
+            newChannel.filesPerThreeMonths = statsChannel.filesPerThreeMonths;
+            newChannel.filesPerSixMonths = statsChannel.filesPerSixMonths;
+            newChannel.filesPerNineMonths = statsChannel.filesPerNineMonths;
+            newChannel.filesPerYear = statsChannel.filesPerYear;
+            newChannel.totalFiles = statsChannel.totalMessages;
 
             if(newChannel.is_archived){
                 slackInfo.numberChannelsArchived++;
@@ -187,29 +216,58 @@ Slack = {
         }
 
         //calculating totals of messages frequency
-        let messagesTotal = this.messagesTotalFrequency(slackInfo);
-        slackInfo.totalMessagesPerDay += messagesTotal.totalMessagesPerDay;
-        slackInfo.totalMessagesPerMonth += messagesTotal.totalMessagesPerMonth;
-        slackInfo.totalMessagesPerYear += messagesTotal.totalMessagesPerYear;
-        slackInfo.totalMessagesPerWeek += messagesTotal.totalMessagesPerWeek;
-        slackInfo.totalMessages += messagesTotal.totalMessages;
+        let totalFrequencies = this.totalFrequency(slackInfo);
+        slackInfo.totalMessagesPerDay = totalFrequencies.totalMessagesPerDay;
+        slackInfo.totalMessagesPerMonth = totalFrequencies.totalMessagesPerMonth;
+        slackInfo.totalMessagesPerThreeMonth = totalFrequencies.totalMessagesPerThreeMonths;
+        slackInfo.totalMessagesPerSixMonth = totalFrequencies.totalMessagesPerSixMonths;
+        slackInfo.totalMessagesPerNineMonth = totalFrequencies.totalMessagesPerNineMonths;
+        slackInfo.totalMessagesPerYear = totalFrequencies.totalMessagesPerYear;
+        slackInfo.totalMessagesPerWeek = totalFrequencies.totalMessagesPerWeek;
+        slackInfo.totalMessages = totalFrequencies.totalMessages;
+
+        //calculating totals of uploaded files
+        slackInfo.totalFilesPerDay = totalFrequencies.totalFilesPerDay;
+        slackInfo.totalFilesPerMonth = totalFrequencies.totalFilesPerMonth;
+        slackInfo.totalFilesPerThreeMonths = totalFrequencies.totalFilesPerThreeMonths;
+        slackInfo.totalFilesPerSixMonths = totalFrequencies.totalFilesPerSixMonths;
+        slackInfo.totalFilesPerNineMonths = totalFrequencies.totalFilesPerNineMonths;
+        slackInfo.totalFilesPerYear = totalFrequencies.totalFilesPerYear;
+        slackInfo.totalFilesPerWeek = totalFrequencies.totalFilesPerWeek;
+        slackInfo.totalFiles = totalFrequencies.totalFiles;
+
 
         SlackCollection.insert(slackInfo);
 
     },
 
-    messagesChannelFrequency : function(channelID){
+    statsChannel : function(slackInfo, channelID){
         let yearInSeconds = 60*60*24*365;
         let monthInSeconds = 60*60*24*30;
         let weekInSeconds = 60*60*24*7;
+        let threeMonthsInSeconds = monthInSeconds*3;
+        let sixMonthsInSeconds = monthInSeconds*6;
+        let nineMonthsInSeconds = monthInSeconds*9;
         let dayInSeconds = 60*60*24;
-        let messagesFrequency = {};
+        let statsChannel = {};
 
-        messagesFrequency.messagesPerDay = 0;
-        messagesFrequency.messagesPerWeek = 0;
-        messagesFrequency.messagesPerMonth = 0;
-        messagesFrequency.messagesPerYear = 0;
-        messagesFrequency.totalMessages = 0;
+        statsChannel.messagesPerDay = 0;
+        statsChannel.messagesPerWeek = 0;
+        statsChannel.messagesPerMonth = 0;
+        statsChannel.messagesPerThreeMonths = 0;
+        statsChannel.messagesPerSixMonths = 0;
+        statsChannel.messagesPerNineMonths = 0;
+        statsChannel.messagesPerYear = 0;
+        statsChannel.totalMessages = 0;
+
+        statsChannel.filesPerDay = 0;
+        statsChannel.filesPerWeek = 0;
+        statsChannel.filesPerMonth = 0;
+        statsChannel.filesPerThreeMonths = 0;
+        statsChannel.filesPerSixMonths = 0;
+        statsChannel.filesPerNineMonths = 0;
+        statsChannel.filesPerYear = 0;
+        statsChannel.totalFiles = 0;
 
         let latestTimestamp = new Date().getTime()/1000;
 
@@ -226,18 +284,52 @@ Slack = {
                 for (m = 0; m < historyResults.messages.length; m++) {
                     //lets exclude warnings like "albert joined channel xpto" or "lisa left channel xyz"
                     if(typeof(historyResults.messages[m].subtype) === 'undefined' || historyResults.messages[m].subtype === 'file_share' ){
-                        messagesFrequency.totalMessages++;
+                        statsChannel.totalMessages++;
+                        if(historyResults.messages[m].subtype === 'file_share'){
+                            statsChannel.totalFiles++;
+                        }
                         if(this.parseSlackTimestamp(historyResults.messages[m].ts) >= (currentTimestamp - dayInSeconds) ){
-                            messagesFrequency.messagesPerDay++;
+                            statsChannel.messagesPerDay++;
+                            if(historyResults.messages[m].subtype === 'file_share'){
+                                                            console.log(historyResults.messages[m]);
+                                statsChannel.filesPerDay++;
+                            }
                         }
                         if(this.parseSlackTimestamp(historyResults.messages[m].ts) >= (currentTimestamp - weekInSeconds) ){
-                            messagesFrequency.messagesPerWeek++;
+                            statsChannel.messagesPerWeek++;
+                            if(historyResults.messages[m].subtype === 'file_share'){
+                                statsChannel.filesPerWeek++;
+                            }
                         }
                         if(this.parseSlackTimestamp(historyResults.messages[m].ts) >= (currentTimestamp - monthInSeconds) ){
-                            messagesFrequency.messagesPerMonth++;
+                            statsChannel.messagesPerMonth++;
+                            if(historyResults.messages[m].subtype === 'file_share'){
+                                statsChannel.filesPerMonth++;
+                            }
+                        }
+                        if(this.parseSlackTimestamp(historyResults.messages[m].ts) >= (currentTimestamp - threeMonthsInSeconds) ){
+                            statsChannel.messagesPerThreeMonths++;
+                            if(historyResults.messages[m].subtype === 'file_share'){
+                                statsChannel.filesPerThreeMonths++;
+                            }
+                        }
+                        if(this.parseSlackTimestamp(historyResults.messages[m].ts) >= (currentTimestamp - sixMonthsInSeconds) ){
+                            statsChannel.messagesPerSixMonths++;
+                            if(historyResults.messages[m].subtype === 'file_share'){
+                                statsChannel.filesPerSixMonths++;
+                            }
+                        }
+                        if(this.parseSlackTimestamp(historyResults.messages[m].ts) >= (currentTimestamp - nineMonthsInSeconds) ){
+                            statsChannel.messagesPerNineMonths++;
+                            if(historyResults.messages[m].subtype === 'file_share'){
+                                statsChannel.filesPerNineMonths++;
+                            }
                         }
                         if(this.parseSlackTimestamp(historyResults.messages[m].ts) >= (currentTimestamp - yearInSeconds) ){
-                            messagesFrequency.messagesPerYear++;
+                            statsChannel.messagesPerYear++;
+                            if(historyResults.messages[m].subtype === 'file_share'){
+                                statsChannel.filesPerYear++;
+                            }
                         }
                     }
                 }
@@ -245,24 +337,48 @@ Slack = {
             }
         } while(historyResults.has_more);
 
-        return messagesFrequency;
+        return statsChannel;
     },
 
-    messagesTotalFrequency : function (slackInfo){
+    totalFrequency : function (slackInfo){
         let myBucket = {};
         myBucket.totalMessagesPerDay = 0;
         myBucket.totalMessagesPerWeek = 0;
         myBucket.totalMessagesPerMonth = 0;
+        myBucket.totalMessagesPerThreeMonths = 0;
+        myBucket.totalMessagesPerSixMonths = 0;
+        myBucket.totalMessagesPerNineMonths = 0;
         myBucket.totalMessagesPerYear = 0;
         myBucket.totalMessages = 0;
+
+        myBucket.totalFilesPerDay = 0;
+        myBucket.totalFilesPerWeek = 0;
+        myBucket.totalFilesPerMonth = 0;
+        myBucket.totalFilesPerThreeMonths = 0;
+        myBucket.totalFilesPerSixMonths = 0;
+        myBucket.totalFilesPerNineMonths = 0;
+        myBucket.totalFilesPerYear = 0;
+        myBucket.totalFiles = 0;
 
         for (var key in slackInfo.channels) {
           if (slackInfo.channels.hasOwnProperty(key)) {
             myBucket.totalMessagesPerDay += slackInfo.channels[key].messagesPerDay;
             myBucket.totalMessagesPerWeek += slackInfo.channels[key].messagesPerWeek;
             myBucket.totalMessagesPerMonth += slackInfo.channels[key].messagesPerMonth;
+            myBucket.totalMessagesPerThreeMonths += slackInfo.channels[key].messagesPerThreeMonths;
+            myBucket.totalMessagesPerSixMonths += slackInfo.channels[key].messagesPerSixMonths;
+            myBucket.totalMessagesPerNineMonths += slackInfo.channels[key].messagesPerNineMonths;
             myBucket.totalMessagesPerYear += slackInfo.channels[key].messagesPerYear;
             myBucket.totalMessages += slackInfo.channels[key].totalMessages;
+
+            myBucket.totalFilesPerDay += slackInfo.channels[key].filesPerDay;
+            myBucket.totalFilesPerWeek += slackInfo.channels[key].filesPerWeek;
+            myBucket.totalFilesPerMonth += slackInfo.channels[key].filesPerMonth;
+            myBucket.totalFilesPerThreeMonths += slackInfo.channels[key].filesPerThreeMonths;
+            myBucket.totalFilesPerSixMonths += slackInfo.channels[key].filesPerSixMonths;
+            myBucket.totalFilesPerNineMonths += slackInfo.channels[key].filesPerNineMonths;
+            myBucket.totalFilesPerYear += slackInfo.channels[key].filesPerYear;
+            myBucket.totalFiles += slackInfo.channels[key].totalFiles;
           }
         }
         return myBucket;
