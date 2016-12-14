@@ -122,7 +122,7 @@ Slack = {
         try{
         results = HTTP.call('GET', "https://slack.com/api/users.list?count=500&token=" + Meteor.settings.TOKEN_SLACK, {headers: {"User-Agent": "Meteor/1.0"}});
         } catch(e) {
-        console.log("AN ERROR OCURRED WHILE CALLING FOR SLACK API: ", e);
+        console.log("AN ERROR OCURRED WHILE CALLING FOR THE USERS LIST: ", e);
         }
         let membersResults = JSON.parse(results.content);
         let userID;
@@ -141,7 +141,7 @@ Slack = {
         try{
         results = HTTP.call('GET', "https://slack.com/api/channels.list?count=500&token=" + Meteor.settings.TOKEN_SLACK, {headers: {"User-Agent": "Meteor/1.0"}});
         } catch(e) {
-        console.log("AN ERROR OCURRED WHILE CALLING FOR SLACK API: ", e);
+        console.log("AN ERROR OCURRED WHILE CALLING FOR THE CHANNELS LIST: ", e);
         }
         let channelsResults = JSON.parse(results.content);
         let channelID;
@@ -162,7 +162,7 @@ Slack = {
             try{
             results = HTTP.call('GET', "https://slack.com/api/channels.info?count=500&channel=" + channelID + "&token=" + Meteor.settings.TOKEN_SLACK, {headers: {"User-Agent": "Meteor/1.0"}});
             } catch(e) {
-            console.log("AN ERROR OCURRED WHILE CALLING FOR SLACK API: ", e);
+            console.log("AN ERROR OCURRED WHILE CALLING FOR INFO OF THE CHANNELID "+ channelID + ": ", e);
             }
             let channelResult = JSON.parse(results.content);
             let creatorID = channelResult.channel.creator;
@@ -241,6 +241,14 @@ Slack = {
 
         //Calculating Most Active channels
         let rankingChannels = this.rankingChannels(slackInfo);
+        slackInfo.rankingMostActiveChannelsDay = myObject.rankingMostActiveChannelsDay;
+        slackInfo.rankingMostActiveChannelsWeek = myObject.rankingMostActiveChannelsWeek;
+        slackInfo.rankingMostActiveChannelsMonth = myObject.rankingMostActiveChannelsMonth;
+        slackInfo.rankingMostActiveChannelsPerThreeMonths = myObject.rankingMostActiveChannelsPerThreeMonths;
+        slackInfo.rankingMostActiveChannelsPerSixMonths = myObject.rankingMostActiveChannelsPerSixMonths;
+        slackInfo.rankingMostActiveChannelsPerNineMonths = myObject.rankingMostActiveChannelsPerNineMonths;
+        slackInfo.rankingMostActiveChannelsYear = myObject.rankingMostActiveChannelsYear;
+        slackInfo.rankingMostActiveChannels = myObject.rankingMostActiveChannels;
 
         //this.rankingUsers(slackInfo);
 
@@ -282,7 +290,7 @@ Slack = {
             try{
                 results = HTTP.call('GET', "https://slack.com/api/channels.history?latest=" + latestTimestamp  + "&channel=" + channelID + "&token=" + Meteor.settings.TOKEN_SLACK, {headers: {"User-Agent": "Meteor/1.0"}});
             } catch(e) {
-                console.log("AN ERROR OCURRED WHILE CALLING FOR SLACK API: ", e);
+                console.log("AN ERROR OCURRED WHILE CALLING FOR THE HISTORY OF THE CHANNELID "+ channelID +": ", e);
             }
             historyResults = JSON.parse(results.content);
             let currentTimestamp = new Date().getTime()/1000;
@@ -483,7 +491,6 @@ Slack = {
         myObject.rankingMostActiveChannelsYear = rankingMostActiveChannelsYear;
         myObject.rankingMostActiveChannels = rankingMostActiveChannels;
 
-        console.log(myObject);
         return myObject;
     },
 
