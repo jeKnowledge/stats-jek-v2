@@ -50,18 +50,9 @@ class SlackBucket {
         this.rankingMostActiveUsersPerYear = [];
         this.rankingMostActiveUsers = [];
 
-        //-- TODO: --
-        this.rankingCreatedMoreChannels = {};
-        this.rankingMemberOfMoreChannels = {};
-        this.rankingSentMoreMessagesPerDay = {};
-        this.rankingSentMoreMessagesPerWeek = {};
-        this.rankingSentMoreMessagesPerMonth = {};
+        this.rankingMemberOfMoreChannels = [];
 
-        this.newChannelsPerMonth = {};
-        this.amountChannelsPerMonth = 0;
-        this.newChannelsPerYear = {};
-        this.amountChannelsPerYear = 0;
-
+        //TODO: ---------------------------
         this.growthTotalMessagesPerDay = 0.0;
         this.growthTotalMessagesPerWeek = 0.0;
         this.growthTotalMessagesPerMonth = 0.0;
@@ -240,6 +231,8 @@ Slack = {
 
         //Calculating Most Active Users
         slackInfo = this.rankingUsers(slackInfo);
+
+        console.log(slackInfo.rankingMemberOfMoreChannels);
 
         SlackCollection.insert(slackInfo);
 
@@ -453,44 +446,50 @@ Slack = {
         let rankingMostActiveUsersPerNineMonths = [];
         let rankingMostActiveUsersPerYear = [];
         let rankingMostActiveUsers = [];
+        let rankingMemberOfMoreChannels = [];
 
         for (var key in slackInfo.members) {
             if (slackInfo.members.hasOwnProperty(key)) {
-              rankingMostActiveUsersPerDay.push( {
-                name: slackInfo.members[key].name,
-                totalMessages : slackInfo.members[key].totalMessagesPerDay,
-              });
-              rankingMostActiveUsersPerWeek.push( {
-                name: slackInfo.members[key].name,
-                totalMessages : slackInfo.members[key].totalMessagesPerWeek,
-              });
-              rankingMostActiveUsersPerMonth.push( {
-                name: slackInfo.members[key].name,
-                totalMessages : slackInfo.members[key].totalMessagesPerMonth,
-              });
-              rankingMostActiveUsersPerThreeMonths.push( {
-                name: slackInfo.members[key].name,
-                totalMessages : slackInfo.members[key].totalMessagesPerThreeMonths,
-              });
-              rankingMostActiveUsersPerSixMonths.push( {
-                name: slackInfo.members[key].name,
-                totalMessages : slackInfo.members[key].totalMessagesPerSixMonths,
-              });
-              rankingMostActiveUsersPerNineMonths.push( {
-                name: slackInfo.members[key].name,
-                totalMessages : slackInfo.members[key].totalMessagesPerNineMonths,
-              });
-              rankingMostActiveUsersPerYear.push( {
-                name: slackInfo.members[key].name,
-                totalMessages : slackInfo.members[key].totalMessagesPerYear,
-              });
-              rankingMostActiveUsers.push( {
-                name: slackInfo.members[key].name,
-                totalMessages : slackInfo.members[key].totalMessages,
-              });
+                rankingMemberOfMoreChannels.push({
+                    name: slackInfo.members[key].name,
+                    totalMessages : slackInfo.members[key].channelsParticipates.length
+                });
+                rankingMostActiveUsersPerDay.push( {
+                    name: slackInfo.members[key].name,
+                    totalMessages : slackInfo.members[key].totalMessagesPerDay,
+                });
+                rankingMostActiveUsersPerWeek.push( {
+                    name: slackInfo.members[key].name,
+                    totalMessages : slackInfo.members[key].totalMessagesPerWeek
+                });
+                rankingMostActiveUsersPerMonth.push( {
+                    name: slackInfo.members[key].name,
+                    totalMessages : slackInfo.members[key].totalMessagesPerMonth
+                });
+                rankingMostActiveUsersPerThreeMonths.push( {
+                    name: slackInfo.members[key].name,
+                    totalMessages : slackInfo.members[key].totalMessagesPerThreeMonths
+                });
+                rankingMostActiveUsersPerSixMonths.push( {
+                    name: slackInfo.members[key].name,
+                    totalMessages : slackInfo.members[key].totalMessagesPerSixMonths
+                });
+                rankingMostActiveUsersPerNineMonths.push( {
+                    name: slackInfo.members[key].name,
+                    totalMessages : slackInfo.members[key].totalMessagesPerNineMonths
+                });
+                rankingMostActiveUsersPerYear.push( {
+                    name: slackInfo.members[key].name,
+                    totalMessages : slackInfo.members[key].totalMessagesPerYear
+                });
+                rankingMostActiveUsers.push( {
+                    name: slackInfo.members[key].name,
+                    totalMessages : slackInfo.members[key].totalMessages
+                });
             }
         }
 
+        rankingMemberOfMoreChannels.sort(this.compare);
         rankingMostActiveUsersPerDay.sort(this.compare);
         rankingMostActiveUsersPerWeek.sort(this.compare);
         rankingMostActiveUsersPerMonth.sort(this.compare);
@@ -500,6 +499,7 @@ Slack = {
         rankingMostActiveUsersPerYear.sort(this.compare);
         rankingMostActiveUsers.sort(this.compare);
 
+        slackInfo.rankingMemberOfMoreChannels = rankingMemberOfMoreChannels;
         slackInfo.rankingMostActiveUsersPerDay = rankingMostActiveUsersPerDay;
         slackInfo.rankingMostActiveUsersPerWeek = rankingMostActiveUsersPerWeek;
         slackInfo.rankingMostActiveUsersPerMonth = rankingMostActiveUsersPerMonth
