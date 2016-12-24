@@ -3,10 +3,12 @@ import { Meteor } from 'meteor/meteor';
 function init(){
   //GitHubCollection.remove({});
   //VimeoCollection.remove({});
-  SlackCollection.remove({});
+  //SlackCollection.remove({});
+  FacebookCollection.remove({});
   //Github.callStats();
   //Vimeo.callStats();
-  Slack.callStats();
+  //Slack.callStats();
+  Facebook.callStats();
 
 }
 

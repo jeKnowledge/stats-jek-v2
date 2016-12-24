@@ -1,5 +1,5 @@
 //-----------------------------------------------------  STRUCTS  ------------------------------------------------------------------
-//CLASS THAT HOLDS ALL THE INFO ABOUT SLACK STATS
+//CLASS THAT HOLDS ALL THE INFO ABOUT FACEBOOK STATS
 class FacebookBucket {
     constructor() {
         this.members = [];
@@ -39,4 +39,18 @@ class FacebookBucket {
 
 Facebook = {
 
+    callStats : function(){
+        //BUCKET THAT CONTAINS ALL THE DATA -------------------------------------------------------------------
+        let FacebookInfo = new FacebookBucket();
+
+        //LETS EXTRACT INFO ABOUT MEMBERS ----------------------------------------------------------------------
+        let results;
+        try{
+        results = HTTP.call('GET', "https://graph.facebook.com/" + Meteor.settings.JEKNOWLEDGE_FACEBOOK_ID + "/events?access_token=" + Meteor.settings.TOKEN_JOEL_FACEBOOK, {headers: {"User-Agent": "Meteor/1.0"}});
+        } catch(e) {
+        console.log("AN ERROR OCURRED WHILE CALLING FOR THE USERS LIST: ", e);
+        }
+        let membersResults = JSON.parse(results.content);
+        console.log(membersResults);
+    }
 };
