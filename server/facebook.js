@@ -67,6 +67,51 @@ Facebook = {
         //BUCKET THAT CONTAINS ALL THE DATA -------------------------------------------------------------------
         let FacebookInfo = new FacebookBucket();
 
+        //LETS EXTRACT THE BASIC INFO
+        try{
+            results = results = HTTP.call('GET', "https://graph.facebook.com/v2.8/" + Meteor.settings.JEKNOWLEDGE_FACEBOOK_ID + "/?fields=fan_count, members, overall_star_rating, talking_about_count&access_token=" + Meteor.settings.TOKEN_JOEL_FACEBOOK, {headers: {"User-Agent": "Meteor/1.0"}});
+        } catch(e) {
+            console.log("AN ERROR OCURRED WHILE CALLING FOR JEKNOWLEDGE PAGE BASIC INFO: ", e);
+        }
+        basicResults = JSON.parse(results.content);
+        FacebookInfo.pageLikes = basicResults.fan_count;
+        FacebookInfo.starRating = basicResults.overall_star_rating;
+        FacebookInfo.talkingAbout = basicResults.talking_about_count;
+
+        before = "";
+        while(true){
+            try{
+                results = results = HTTP.call('GET', "https://graph.facebook.com/v2.8/" + Meteor.settings.JEKNOWLEDGE_FACEBOOK_ID + "/photos?access_token=" + Meteor.settings.TOKEN_JOEL_FACEBOOK + "&before=" + before, {headers: {"User-Agent": "Meteor/1.0"}});
+            } catch(e) {
+                console.log("AN ERROR OCURRED WHILE CALLING FOR FACEBOOK PHOTOS: ", e);
+            }
+            photosResults = JSON.parse(results.content);
+
+            if(typeof(photosResults.paging) === 'undefined'){
+                break;
+            }
+            FacebookInfo.totalPhotos++;
+
+            before = photosResults.paging.cursors.before;
+        }
+
+        before = "";
+        while(true){
+            try{
+                results = results = HTTP.call('GET', "https://graph.facebook.com/v2.8/" + Meteor.settings.JEKNOWLEDGE_FACEBOOK_ID + "/videos?access_token=" + Meteor.settings.TOKEN_JOEL_FACEBOOK + "&before=" + before, {headers: {"User-Agent": "Meteor/1.0"}});
+            } catch(e) {
+                console.log("AN ERROR OCURRED WHILE CALLING FOR FACEBOOK VIDEOS: ", e);
+            }
+            videosResults = JSON.parse(results.content);
+
+            if(typeof(videosResults.paging) === 'undefined'){
+                break;
+            }
+            FacebookInfo.totalVideos++;
+
+            before = videosResults.paging.cursors.before;
+        }
+        
         //LETS EXTRACT INFO ABOUT EVENTS ----------------------------------------------------------------------
         let results;
         let before = "";
@@ -117,51 +162,6 @@ Facebook = {
                 }
             }
             before = eventsResults.paging.cursors.before;
-        }
-
-        //LETS EXTRACT THE BASIC INFO
-        try{
-            results = results = HTTP.call('GET', "https://graph.facebook.com/v2.8/" + Meteor.settings.JEKNOWLEDGE_FACEBOOK_ID + "/?fields=fan_count, members, overall_star_rating, talking_about_count&access_token=" + Meteor.settings.TOKEN_JOEL_FACEBOOK, {headers: {"User-Agent": "Meteor/1.0"}});
-        } catch(e) {
-            console.log("AN ERROR OCURRED WHILE CALLING FOR JEKNOWLEDGE PAGE BASIC INFO: ", e);
-        }
-        basicResults = JSON.parse(results.content);
-        FacebookInfo.pageLikes = basicResults.fan_count;
-        FacebookInfo.starRating = basicResults.overall_star_rating;
-        FacebookInfo.talkingAbout = basicResults.talking_about_count;
-
-        before = "";
-        while(true){
-            try{
-                results = results = HTTP.call('GET', "https://graph.facebook.com/v2.8/" + Meteor.settings.JEKNOWLEDGE_FACEBOOK_ID + "/photos?access_token=" + Meteor.settings.TOKEN_JOEL_FACEBOOK + "&before=" + before, {headers: {"User-Agent": "Meteor/1.0"}});
-            } catch(e) {
-                console.log("AN ERROR OCURRED WHILE CALLING FOR FACEBOOK PHOTOS: ", e);
-            }
-            photosResults = JSON.parse(results.content);
-
-            if(typeof(photosResults.paging) === 'undefined'){
-                break;
-            }
-            FacebookInfo.totalPhotos++;
-
-            before = photosResults.paging.cursors.before;
-        }
-
-        before = "";
-        while(true){
-            try{
-                results = results = HTTP.call('GET', "https://graph.facebook.com/v2.8/" + Meteor.settings.JEKNOWLEDGE_FACEBOOK_ID + "/videos?access_token=" + Meteor.settings.TOKEN_JOEL_FACEBOOK + "&before=" + before, {headers: {"User-Agent": "Meteor/1.0"}});
-            } catch(e) {
-                console.log("AN ERROR OCURRED WHILE CALLING FOR FACEBOOK VIDEOS: ", e);
-            }
-            videosResults = JSON.parse(results.content);
-
-            if(typeof(videosResults.paging) === 'undefined'){
-                break;
-            }
-            FacebookInfo.totalVideos++;
-
-            before = videosResults.paging.cursors.before;
         }
 
         //LETS EXTRACT INFO ABOUT POSTS
