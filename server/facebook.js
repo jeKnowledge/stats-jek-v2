@@ -6,8 +6,9 @@ class FacebookBucket {
         this.starRating = 0.0;
         this.talkingAbout = 0;
         this.Events = {};
-        this.totalPhotos = 0;
-        this.totalVideos = 0;
+        this.Posts = {};
+        this.Photos = {};
+        this.Videos = {};
 
         this.postsPerDay = 0;
         this.postsPerWeek = 0;
@@ -16,13 +17,21 @@ class FacebookBucket {
         this.postsPerSixMonths = 0;
         this.postsPerNineMonths = 0;
         this.postsPerYear = 0;
-        this.totalPosts = 0;
 
         this.totalLoves = 0;
         this.totalLaughs = 0;
         this.totalSads = 0;
         this.totalAnger = 0;
         this.totalReactions = 0
+
+        this.commentsPerDay = 0;
+        this.commentsPerWeek = 0;
+        this.commentsPerMonth = 0;
+        this.commentsPerThreeMonths = 0;
+        this.commentsPerSixMonths = 0;
+        this.commentsPerNineMonths = 0;
+        this.commentsPerYear = 0;
+        this.totalComments = 0;
 
         this.likesPerDay = 0;
         this.likesPerWeek = 0;
@@ -109,56 +118,71 @@ Facebook = {
         //LETS EXTRACT INFO ABOUT PHOTOS -------------------------------
         let results;
         let photosResults;
-
+        FacebookInfo.Photos.totalNumberPhotos = 0;
+        FacebookInfo.Photos.photosIDs = {};
         for (var i = 0; ; i++) {
             if (i == 0) {
                 try{
                     results = HTTP.call('GET', "https://graph.facebook.com/v2.8/" + Meteor.settings.JEKNOWLEDGE_FACEBOOK_ID + "/photos?access_token=" + Meteor.settings.TOKEN_JOEL_FACEBOOK, {headers: {"User-Agent": "Meteor/1.0"}});
                 } catch(e) {
                     console.log("AN ERROR OCURRED WHILE CALLING FOR FACEBOOK PHOTOS: ", e);
+                    break;
                 }
                 photosResults = JSON.parse(results.content);
 
-            } else if (typeof(photosResults.next) !== 'undefined'){
+            } else if (typeof(photosResults.paging.next) !== 'undefined'){
                 try{
-                    results = HTTP.call('GET', photosResults.next, {headers: {"User-Agent": "Meteor/1.0"}});
+                    results = HTTP.call('GET', photosResults.paging.next, {headers: {"User-Agent": "Meteor/1.0"}});
                 } catch(e) {
                     console.log("AN ERROR OCURRED WHILE CALLING FOR FACEBOOK PHOTOS: ", e);
+                    break;
                 }
                 photosResults = JSON.parse(results.content);
 
             } else {
                 break;
             }
+
+            FacebookInfo.Photos.totalNumberPhotos += photosResults.data.length;
             for (var l = 0; l < photosResults.data.length; l++) {
-                FacebookInfo.totalPhotos++;
+                let photoID = photosResults.data[l].id;
+                FacebookInfo.Photos.photosIDs[photoID] = {};
+                FacebookInfo.Photos.photosIDs[photoID].date = new Date(photosResults.data[l].created_time);
             }
         }
 
         //LETS EXTRACT INFO ABOUT VIDEOS -------------------------------
         let videosResults;
+        FacebookInfo.Videos.totalNumberVideos = 0;
+        FacebookInfo.Videos.videosIDs = {};
         for (var i = 0; ; i++) {
             if (i == 0) {
                 try{
                     results = HTTP.call('GET', "https://graph.facebook.com/v2.8/" + Meteor.settings.JEKNOWLEDGE_FACEBOOK_ID + "/videos?access_token=" + Meteor.settings.TOKEN_JOEL_FACEBOOK, {headers: {"User-Agent": "Meteor/1.0"}});
                 } catch(e) {
                     console.log("AN ERROR OCURRED WHILE CALLING FOR FACEBOOK VIDEOS: ", e);
+                    break;
                 }
                 videosResults = JSON.parse(results.content);
 
-            } else if (typeof(videosResults.next) !== 'undefined'){
+            } else if (typeof(videosResults.paging.next) !== 'undefined'){
                 try{
-                    results = HTTP.call('GET', videosResults.next, {headers: {"User-Agent": "Meteor/1.0"}});
+                    results = HTTP.call('GET', videosResults.paging.next, {headers: {"User-Agent": "Meteor/1.0"}});
                 } catch(e) {
                     console.log("AN ERROR OCURRED WHILE CALLING FOR FACEBOOK VIDEOS: ", e);
+                    break;
                 }
                 videosResults = JSON.parse(results.content);
 
             } else {
                 break;
             }
+
+            FacebookInfo.Videos.totalNumberVideos += videosResults.data.length;
             for (var l = 0; l < videosResults.data.length; l++) {
-                FacebookInfo.totalVideos++;
+                let videoID = videosResults.data[l].id;
+                FacebookInfo.Videos.videosIDs[videoID] = {};
+                FacebookInfo.Videos.videosIDs[videoID].date = new Date(videosResults.data[l].updated_time);
             }
         }
 
@@ -175,14 +199,16 @@ Facebook = {
                     results = HTTP.call('GET', "https://graph.facebook.com/v2.8/" + Meteor.settings.JEKNOWLEDGE_FACEBOOK_ID + "/events?access_token=" + Meteor.settings.TOKEN_JOEL_FACEBOOK, {headers: {"User-Agent": "Meteor/1.0"}});
                 } catch(e) {
                     console.log("AN ERROR OCURRED WHILE CALLING FOR FACEBOOK EVENTS: ", e);
+                    break;
                 }
                 eventsResults = JSON.parse(results.content);
 
-            } else if (typeof(eventsResults.next) !== 'undefined'){
+            } else if (typeof(eventsResults.paging) !== 'undefined'){
                 try{
-                    results = HTTP.call('GET', eventsResults.next, {headers: {"User-Agent": "Meteor/1.0"}});
+                    results = HTTP.call('GET', eventsResults.paging.next, {headers: {"User-Agent": "Meteor/1.0"}});
                 } catch(e) {
                     console.log("AN ERROR OCURRED WHILE CALLING FOR FACEBOOK EVENTS: ", e);
+                    break;
                 }
                 eventsResults = JSON.parse(results.content);
 
@@ -190,12 +216,12 @@ Facebook = {
                 break;
             }
 
+            FacebookInfo.Events.totalNumberEvents += eventsResults.data.length;
             for (var y = 0; y < eventsResults.data.length; y++) {
                 let eventID = eventsResults.data[y].id;
-                FacebookInfo.Events.totalNumberEvents = eventsResults.data.length;
                 FacebookInfo.Events.eventsIDs[eventID] = {};
                 FacebookInfo.Events.eventsIDs[eventID].name = eventsResults.data[y].name;
-                FacebookInfo.Events.eventsIDs[eventID].startTime = eventsResults.data[y].start_time;
+                FacebookInfo.Events.eventsIDs[eventID].startTime = new Date (eventsResults.data[y].start_time);
                 FacebookInfo.Events.eventsIDs[eventID].attending = 0;
 
                 for (var r = 0; ; r++) {
@@ -203,15 +229,17 @@ Facebook = {
                         try{
                             results = HTTP.call('GET', "https://graph.facebook.com/v2.8/" + eventID + "/attending?access_token=" + Meteor.settings.TOKEN_JOEL_FACEBOOK, {headers: {"User-Agent": "Meteor/1.0"}});
                         } catch(e) {
-                            console.log("AN ERROR OCURRED WHILE CALLING FOR FACEBOOK EVENTS: ", e);
+                            console.log("AN ERROR OCURRED WHILE CALLING FOR INFO FOR THE EVENT " + eventID + " : ", e);
+                            break;
                         }
                         eventAttending = JSON.parse(results.content);
 
-                    } else if (typeof(eventAttending.next) !== 'undefined'){
+                    } else if (typeof(eventAttending.paging.next) !== 'undefined'){
                         try{
-                            results = HTTP.call('GET', eventAttending.next, {headers: {"User-Agent": "Meteor/1.0"}});
+                            results = HTTP.call('GET', eventAttending.paging.next, {headers: {"User-Agent": "Meteor/1.0"}});
                         } catch(e) {
-                            console.log("AN ERROR OCURRED WHILE CALLING FOR FACEBOOK EVENTS: ", e);
+                            console.log("AN ERROR OCURRED WHILE CALLING FOR INFO FOR THE EVENT " + eventID + " : ", e);
+                            break;
                         }
                         eventAttending = JSON.parse(results.content);
 
@@ -229,15 +257,74 @@ Facebook = {
             }
         }
 
-
         //LETS EXTRACT INFO ABOUT POSTS
-        //FacebookInfo = this.statsPosts(FacebookInfo);
+        let postsResults;
+        FacebookInfo.Posts.postsIDs = {};
+        FacebookInfo.Posts.totalNumberPosts = 0;
+        for (var i = 0; ; i++) {
+            if (i == 0) {
+                try{
+                    results = HTTP.call('GET', "https://graph.facebook.com/v2.8/" + Meteor.settings.JEKNOWLEDGE_FACEBOOK_ID + "/posts?access_token=" + Meteor.settings.TOKEN_JOEL_FACEBOOK, {headers: {"User-Agent": "Meteor/1.0"}});
+                } catch(e) {
+                    console.log("AN ERROR OCURRED WHILE CALLING FOR FACEBOOK POSTS: ", e);
+                    break;
+                }
+                postsResults = JSON.parse(results.content);
 
-        console.log(FacebookInfo.Events);
+            } else if (typeof(postsResults.paging) !== 'undefined'){
+                try{
+                    results = HTTP.call('GET', postsResults.paging.next, {headers: {"User-Agent": "Meteor/1.0"}});
+                } catch(e) {
+                    console.log("AN ERROR OCURRED WHILE CALLING FOR FACEBOOK POSTS: ", e);
+                    break;
+                }
+                postsResults = JSON.parse(results.content);
+
+            } else {
+                break;
+            }
+            FacebookInfo.Posts.totalNumberPosts += postsResults.data.length;
+            for (var l = 0; l < postsResults.data.length; l++) {
+                let postsID = postsResults.data[l].id;
+                FacebookInfo.Posts.postsIDs[postsID] = {};
+                FacebookInfo.Posts.postsIDs[postsID].date = new Date(postsResults.data[l].created_time);
+            }
+
+        }
+
+        //UPDATE STATISTICS ABOUT POSTS
+        FacebookInfo = this.statsPosts(FacebookInfo);
+        console.log(FacebookInfo);
+
 
     },
 
     statsPosts : function(FacebookInfo){
+
+
+        for (var key in FacebookInfo.Posts.postsIDs){
+            if (FacebookInfo.Posts.postsIDs.hasOwnProperty(key)) {
+
+                //check relative time foreach post
+                FacebookInfo = this.temporalRecord(FacebookInfo, key);
+
+                //count reactions
+
+                //count comments
+
+                //count shares
+
+
+            }
+        }
+
+
+
+
+        return FacebookInfo;
+    },
+
+    temporalRecord : function(FacebookInfo, key){
         let yearInSeconds = 60*60*24*365;
         let monthInSeconds = 60*60*24*30;
         let weekInSeconds = 60*60*24*7;
@@ -245,25 +332,28 @@ Facebook = {
         let sixMonthsInSeconds = monthInSeconds*6;
         let nineMonthsInSeconds = monthInSeconds*9;
         let dayInSeconds = 60*60*24;
-        let postsResults;
-        let before = "";
+        let currentTimestamp = new Date().getTime()/1000;
 
-        while(true){
-            try{
-                results = HTTP.call('GET', "https://graph.facebook.com/v2.8/" + Meteor.settings.JEKNOWLEDGE_FACEBOOK_ID + "/posts?access_token=" + Meteor.settings.TOKEN_JOEL_FACEBOOK + "&before=" + before, {headers: {"User-Agent": "Meteor/1.0"}});
-            } catch(e) {
-                console.log("AN ERROR OCURRED WHILE CALLING FOR FACEBOOK EVENTS: ", e);
-            }
-            postsResults = JSON.parse(results.content);
-            if(typeof(postsResults.paging) === 'undefined'){
-                break;
-            }
-
-            for (var i = 0; i < postsResults.data.length; i++) {
-                FacebookInfo.totalPosts++;
-            }
-
-            before = postsResults.paging.cursors.before;
+        if(this.dateToTimestamp(FacebookInfo.Posts.postsIDs[key].date) >= (currentTimestamp - dayInSeconds) ){
+            FacebookInfo.postsPerDay++;
+        }
+        if(this.dateToTimestamp(FacebookInfo.Posts.postsIDs[key].date) >= (currentTimestamp - weekInSeconds) ){
+            FacebookInfo.postsPerWeek++;
+        }
+        if(this.dateToTimestamp(FacebookInfo.Posts.postsIDs[key].date) >= (currentTimestamp - monthInSeconds) ){
+            FacebookInfo.postsPerMonth++;
+        }
+        if(this.dateToTimestamp(FacebookInfo.Posts.postsIDs[key].date) >= (currentTimestamp - threeMonthsInSeconds) ){
+            FacebookInfo.postsPerThreeMonths++;
+        }
+        if(this.dateToTimestamp(FacebookInfo.Posts.postsIDs[key].date) >= (currentTimestamp - sixMonthsInSeconds) ){
+            FacebookInfo.postsPerSixMonths++;
+        }
+        if(this.dateToTimestamp(FacebookInfo.Posts.postsIDs[key].date) >= (currentTimestamp - nineMonthsInSeconds) ){
+            FacebookInfo.postsPerNineMonths++;
+        }
+        if(this.dateToTimestamp(FacebookInfo.Posts.postsIDs[key].date) >= (currentTimestamp - yearInSeconds) ){
+            FacebookInfo.postsPerYear++;
         }
 
         return FacebookInfo;
@@ -281,12 +371,17 @@ Facebook = {
 
 };
 
+//TODO: Refresh token automatically
+//TODO: refactor everything to ECMA6
+
 /*EXAMPLE AN OF OBJECT THAT HOLDS ALL THE INFO ABOUT EVENTS
     this.eventsIDs = { this.id1 = {name = "",
-                                    attendees = ""
+                                    attendees = "",
+                                    startTime = "";
                                 },
                     this.id2 = { name = "",
-                                attendees = ""
+                                attendees = "",
+                                startTime = "";
                                 },
                     ...,
                 },
@@ -294,4 +389,18 @@ Facebook = {
     this.totalAttendees = 0;
 */
 
-//TODO: Refresh token automatically
+/*EXAMPLE AN OF OBJECT THAT HOLDS ALL THE INFO ABOUT PHOTOS
+    this.photosIDs = { this.id1 = {date = "" },
+                       this.id1 = {date = "" },
+                       ...,
+                       },
+    this.totalNumberPhotos = 0;
+*/
+
+/*EXAMPLE AN OF OBJECT THAT HOLDS ALL THE INFO ABOUT VIDEOS
+    this.videosIDs =  { this.id1 = {date = "" },
+                       this.id1 = {date = "" },
+                       ...,
+                       },
+    this.totalNumberVideos = 0;
+*/

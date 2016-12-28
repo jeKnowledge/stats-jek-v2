@@ -428,11 +428,6 @@ Slack = {
         return (new Date(timestamp*1000));
     },
 
-    // DATE TO UNIX TIMESTAMP
-    dateToTimestamp : function(date){
-        return date.getTime()/1000;
-    },
-
 
     statsUser : function(){
 
