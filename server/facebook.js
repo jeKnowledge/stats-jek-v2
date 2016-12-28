@@ -6,7 +6,6 @@ class FacebookBucket {
         this.starRating = 0.0;
         this.talkingAbout = 0;
         this.Events = {};
-        this.Posts = {};
         this.Photos = {};
         this.Videos = {};
 
@@ -17,12 +16,15 @@ class FacebookBucket {
         this.postsPerSixMonths = 0;
         this.postsPerNineMonths = 0;
         this.postsPerYear = 0;
+        this.totalPosts = 0;
 
         this.totalLoves = 0;
         this.totalLaughs = 0;
         this.totalSads = 0;
-        this.totalAnger = 0;
-        this.totalReactions = 0
+        this.totalAngrys = 0;
+        this.totalWows = 0;
+        this.totalThankfuls = 0;
+        this.totalReactions = 0;
 
         this.commentsPerDay = 0;
         this.commentsPerWeek = 0;
@@ -203,7 +205,7 @@ Facebook = {
                 }
                 eventsResults = JSON.parse(results.content);
 
-            } else if (typeof(eventsResults.paging) !== 'undefined'){
+            } else if (typeof(eventsResults.paging.next) !== 'undefined'){
                 try{
                     results = HTTP.call('GET', eventsResults.paging.next, {headers: {"User-Agent": "Meteor/1.0"}});
                 } catch(e) {
@@ -259,8 +261,6 @@ Facebook = {
 
         //LETS EXTRACT INFO ABOUT POSTS
         let postsResults;
-        FacebookInfo.Posts.postsIDs = {};
-        FacebookInfo.Posts.totalNumberPosts = 0;
         for (var i = 0; ; i++) {
             if (i == 0) {
                 try{
@@ -283,48 +283,80 @@ Facebook = {
             } else {
                 break;
             }
-            FacebookInfo.Posts.totalNumberPosts += postsResults.data.length;
+            FacebookInfo.totalPosts += postsResults.data.length;
             for (var l = 0; l < postsResults.data.length; l++) {
                 let postsID = postsResults.data[l].id;
-                FacebookInfo.Posts.postsIDs[postsID] = {};
-                FacebookInfo.Posts.postsIDs[postsID].date = new Date(postsResults.data[l].created_time);
+                let timestamp = this.dateToTimestamp(new Date(postsResults.data[l].created_time));
+
+                //check relative time foreach post
+                FacebookInfo = this.postsFrequency(FacebookInfo, postsID, timestamp);
+
+                //count reactions & likes Frequency
+                FacebookInfo = this.countReactions(FacebookInfo, postsID, timestamp);
+
+                //count comments
+
+                //count shares
             }
 
         }
-
-        //UPDATE STATISTICS ABOUT POSTS
-        FacebookInfo = this.statsPosts(FacebookInfo);
         console.log(FacebookInfo);
 
 
     },
 
-    statsPosts : function(FacebookInfo){
+    countReactions : function(FacebookInfo, key, timestamp) {
+        let reactionsResults;
+        for (var i = 0; ; i++) {
+            if (i == 0) {
+                try{
+                    results = HTTP.call('GET', "https://graph.facebook.com/v2.8/" + key + "/reactions?access_token=" + Meteor.settings.TOKEN_JOEL_FACEBOOK, {headers: {"User-Agent": "Meteor/1.0"}});
+                } catch(e) {
+                    console.log("AN ERROR OCURRED WHILE CALLING FOR FACEBOOK REACTIONS TO THE POST " + key + ": ", e);
+                    break;
+                }
+                reactionsResults = JSON.parse(results.content);
 
+            } else if (typeof(reactionsResults.paging) === 'undefined') {
+                   break;
+            } else if (typeof(reactionsResults.paging.next) !== 'undefined'){
+                try{
+                    results = HTTP.call('GET', reactionsResults.paging.next, {headers: {"User-Agent": "Meteor/1.0"}});
+                } catch(e) {
+                    console.log("AN ERROR OCURRED WHILE CALLING FOR FACEBOOK REACTIONS TO THE POST " + key + ": ", e);
+                    break;
+                }
+                reactionsResults = JSON.parse(results.content);
 
-        for (var key in FacebookInfo.Posts.postsIDs){
-            if (FacebookInfo.Posts.postsIDs.hasOwnProperty(key)) {
+            } else {
+                break;
+            }
 
-                //check relative time foreach post
-                FacebookInfo = this.temporalRecord(FacebookInfo, key);
+            FacebookInfo.totalReactions += reactionsResults.data.length;
+            for (var i = 0; i < reactionsResults.data.length; i++) {
 
-                //count reactions
-
-                //count comments
-
-                //count shares
-
-
+                if(reactionsResults.data[i].type === 'LIKE'){
+                    FacebookInfo.totalLikes++;
+                    //this.likesFrequency();
+                } else if(reactionsResults.data[i].type === 'LOVE'){
+                    FacebookInfo.totalLoves++;
+                } else if(reactionsResults.data[i].type === 'WOW'){
+                    FacebookInfo.totalWows++;
+                } else if(reactionsResults.data[i].type === 'HAHA'){
+                    FacebookInfo.totalLaughs++;
+                } else if(reactionsResults.data[i].type === 'SAD'){
+                    FacebookInfo.totalSads++;
+                } else if(reactionsResults.data[i].type === 'ANGRY'){
+                    FacebookInfo.totalAngrys++;
+                } else if(reactionsResults.data[i].type === 'THANKFUL'){
+                    FacebookInfo.totalThankfuls++;
+                }
             }
         }
-
-
-
-
         return FacebookInfo;
     },
 
-    temporalRecord : function(FacebookInfo, key){
+    postsFrequency : function(FacebookInfo, key, timestamp){
         let yearInSeconds = 60*60*24*365;
         let monthInSeconds = 60*60*24*30;
         let weekInSeconds = 60*60*24*7;
@@ -334,25 +366,25 @@ Facebook = {
         let dayInSeconds = 60*60*24;
         let currentTimestamp = new Date().getTime()/1000;
 
-        if(this.dateToTimestamp(FacebookInfo.Posts.postsIDs[key].date) >= (currentTimestamp - dayInSeconds) ){
+        if(timestamp >= (currentTimestamp - dayInSeconds) ){
             FacebookInfo.postsPerDay++;
         }
-        if(this.dateToTimestamp(FacebookInfo.Posts.postsIDs[key].date) >= (currentTimestamp - weekInSeconds) ){
+        if(timestamp >= (currentTimestamp - weekInSeconds) ){
             FacebookInfo.postsPerWeek++;
         }
-        if(this.dateToTimestamp(FacebookInfo.Posts.postsIDs[key].date) >= (currentTimestamp - monthInSeconds) ){
+        if(timestamp >= (currentTimestamp - monthInSeconds) ){
             FacebookInfo.postsPerMonth++;
         }
-        if(this.dateToTimestamp(FacebookInfo.Posts.postsIDs[key].date) >= (currentTimestamp - threeMonthsInSeconds) ){
+        if(timestamp >= (currentTimestamp - threeMonthsInSeconds) ){
             FacebookInfo.postsPerThreeMonths++;
         }
-        if(this.dateToTimestamp(FacebookInfo.Posts.postsIDs[key].date) >= (currentTimestamp - sixMonthsInSeconds) ){
+        if(timestamp >= (currentTimestamp - sixMonthsInSeconds) ){
             FacebookInfo.postsPerSixMonths++;
         }
-        if(this.dateToTimestamp(FacebookInfo.Posts.postsIDs[key].date) >= (currentTimestamp - nineMonthsInSeconds) ){
+        if(timestamp >= (currentTimestamp - nineMonthsInSeconds) ){
             FacebookInfo.postsPerNineMonths++;
         }
-        if(this.dateToTimestamp(FacebookInfo.Posts.postsIDs[key].date) >= (currentTimestamp - yearInSeconds) ){
+        if(timestamp >= (currentTimestamp - yearInSeconds) ){
             FacebookInfo.postsPerYear++;
         }
 
