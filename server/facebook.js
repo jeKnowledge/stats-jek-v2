@@ -156,7 +156,7 @@ Facebook = {
                         let timestamp = this.dateToTimestamp(new Date(photosResults.data[g].created_time));
 
                         //count photos Frequency
-                        FacebookInfo = this.photosFrequency(FacebookInfo, timestamp);
+                        FacebookInfo = this.statsFrequency(FacebookInfo, timestamp, "uploadedPhotos");
                     }
                 }
             }
@@ -194,7 +194,7 @@ Facebook = {
                 let timestamp = this.dateToTimestamp(new Date(videosResults.data[l].updated_time));
 
                 //count videos Frequency
-                FacebookInfo = this.videosFrequency(FacebookInfo, timestamp);
+                FacebookInfo = this.statsFrequency(FacebookInfo, timestamp, "uploadedVideos");
             }
         }
 
@@ -234,7 +234,7 @@ Facebook = {
                 let timestamp = this.dateToTimestamp(new Date(eventsResults.data[y].start_time));
 
                 //count events Frequency
-                FacebookInfo = this.eventsFrequency(FacebookInfo, timestamp);
+                FacebookInfo = this.statsFrequency(FacebookInfo, timestamp, "events");
 
                 for (var r = 0; ; r++) {
                     if (r == 0) {
@@ -268,7 +268,7 @@ Facebook = {
             }
         }
 
-        /*//LETS EXTRACT INFO ABOUT POSTS
+        //LETS EXTRACT INFO ABOUT POSTS
         let postsResults;
         for (var i = 0; ; i++) {
             if (i == 0) {
@@ -298,7 +298,7 @@ Facebook = {
                 let timestamp = this.dateToTimestamp(new Date(postsResults.data[z].created_time));
 
                 //check relative time foreach post
-                FacebookInfo = this.postsFrequency(FacebookInfo, postsID, timestamp);
+                FacebookInfo = this.statsFrequency(FacebookInfo, timestamp, "posts");
                 //count reactions
                 FacebookInfo = this.countReactions(FacebookInfo, postsID);
                 //count comments
@@ -308,10 +308,7 @@ Facebook = {
 
             }
 
-        }*/
-        console.log(FacebookInfo);
-
-
+        }
     },
 
     countShares : function(FacebookInfo, key) {
@@ -447,7 +444,7 @@ Facebook = {
         return FacebookInfo;
     },
 
-    eventsFrequency : function (FacebookInfo, timestamp){
+    statsFrequency : function(FacebookInfo, timestamp, parameter){
         let yearInSeconds = 60*60*24*365;
         let monthInSeconds = 60*60*24*30;
         let weekInSeconds = 60*60*24*7;
@@ -457,131 +454,34 @@ Facebook = {
         let dayInSeconds = 60*60*24;
         let currentTimestamp = new Date().getTime()/1000;
 
-        if(timestamp >= (currentTimestamp - dayInSeconds) ){
-            FacebookInfo.eventsPerDay++;
-        }
-        if(timestamp >= (currentTimestamp - weekInSeconds) ){
-            FacebookInfo.eventsPerWeek++;
-        }
-        if(timestamp >= (currentTimestamp - monthInSeconds) ){
-            FacebookInfo.eventsPerMonth++;
-        }
-        if(timestamp >= (currentTimestamp - threeMonthsInSeconds) ){
-            FacebookInfo.eventsPerThreeMonths++;
-        }
-        if(timestamp >= (currentTimestamp - sixMonthsInSeconds) ){
-            FacebookInfo.eventsPerSixMonths++;
-        }
-        if(timestamp >= (currentTimestamp - nineMonthsInSeconds) ){
-            FacebookInfo.eventsPerNineMonths++;
-        }
-        if(timestamp >= (currentTimestamp - yearInSeconds) ){
-            FacebookInfo.eventsPerYear++;
-        }
-
-        return FacebookInfo;
-    },
-
-    photosFrequency : function (FacebookInfo, timestamp){
-        let yearInSeconds = 60*60*24*365;
-        let monthInSeconds = 60*60*24*30;
-        let weekInSeconds = 60*60*24*7;
-        let threeMonthsInSeconds = monthInSeconds*3;
-        let sixMonthsInSeconds = monthInSeconds*6;
-        let nineMonthsInSeconds = monthInSeconds*9;
-        let dayInSeconds = 60*60*24;
-        let currentTimestamp = new Date().getTime()/1000;
+        let Day = parameter + "PerDay";
+        let Week = parameter + "PerWeek";
+        let Month = parameter + "PerMonth";
+        let ThreeMonths = parameter + "PerThreeMonths";
+        let SixMonths = parameter + "PerSixMonths";
+        let NineMonths = parameter + "PerNineMonths";
+        let Year = parameter + "PerYear";
 
         if(timestamp >= (currentTimestamp - dayInSeconds) ){
-            FacebookInfo.uploadedPhotosPerDay++;
+            FacebookInfo[Day]++;
         }
         if(timestamp >= (currentTimestamp - weekInSeconds) ){
-            FacebookInfo.uploadedPhotosPerWeek++;
+            FacebookInfo[Week]++;
         }
         if(timestamp >= (currentTimestamp - monthInSeconds) ){
-            FacebookInfo.uploadedPhotosPerMonth++;
+            FacebookInfo[Month]++;
         }
         if(timestamp >= (currentTimestamp - threeMonthsInSeconds) ){
-            FacebookInfo.uploadedPhotosPerThreeMonths++;
+            FacebookInfo[ThreeMonths]++;
         }
         if(timestamp >= (currentTimestamp - sixMonthsInSeconds) ){
-            FacebookInfo.uploadedPhotosPerSixMonths++;
+            FacebookInfo[SixMonths]++;
         }
         if(timestamp >= (currentTimestamp - nineMonthsInSeconds) ){
-            FacebookInfo.uploadedPhotosPerNineMonths++;
+            FacebookInfo[NineMonths]++;
         }
         if(timestamp >= (currentTimestamp - yearInSeconds) ){
-            FacebookInfo.uploadedPhotosPerYear++;
-        }
-
-        return FacebookInfo;
-    },
-
-    videosFrequency : function (FacebookInfo, timestamp) {
-        let yearInSeconds = 60*60*24*365;
-        let monthInSeconds = 60*60*24*30;
-        let weekInSeconds = 60*60*24*7;
-        let threeMonthsInSeconds = monthInSeconds*3;
-        let sixMonthsInSeconds = monthInSeconds*6;
-        let nineMonthsInSeconds = monthInSeconds*9;
-        let dayInSeconds = 60*60*24;
-        let currentTimestamp = new Date().getTime()/1000;
-
-        if(timestamp >= (currentTimestamp - dayInSeconds) ){
-            FacebookInfo.uploadedVideosPerDay++;
-        }
-        if(timestamp >= (currentTimestamp - weekInSeconds) ){
-            FacebookInfo.uploadedVideosPerWeek++;
-        }
-        if(timestamp >= (currentTimestamp - monthInSeconds) ){
-            FacebookInfo.uploadedVideosPerMonth++;
-        }
-        if(timestamp >= (currentTimestamp - threeMonthsInSeconds) ){
-            FacebookInfo.uploadedVideosPerThreeMonths++;
-        }
-        if(timestamp >= (currentTimestamp - sixMonthsInSeconds) ){
-            FacebookInfo.uploadedVideosPerSixMonths++;
-        }
-        if(timestamp >= (currentTimestamp - nineMonthsInSeconds) ){
-            FacebookInfo.uploadedVideosPerNineMonths++;
-        }
-        if(timestamp >= (currentTimestamp - yearInSeconds) ){
-            FacebookInfo.uploadedVideosPerYear++;
-        }
-
-        return FacebookInfo;
-    },
-
-    postsFrequency : function(FacebookInfo, key, timestamp){
-        let yearInSeconds = 60*60*24*365;
-        let monthInSeconds = 60*60*24*30;
-        let weekInSeconds = 60*60*24*7;
-        let threeMonthsInSeconds = monthInSeconds*3;
-        let sixMonthsInSeconds = monthInSeconds*6;
-        let nineMonthsInSeconds = monthInSeconds*9;
-        let dayInSeconds = 60*60*24;
-        let currentTimestamp = new Date().getTime()/1000;
-
-        if(timestamp >= (currentTimestamp - dayInSeconds) ){
-            FacebookInfo.postsPerDay++;
-        }
-        if(timestamp >= (currentTimestamp - weekInSeconds) ){
-            FacebookInfo.postsPerWeek++;
-        }
-        if(timestamp >= (currentTimestamp - monthInSeconds) ){
-            FacebookInfo.postsPerMonth++;
-        }
-        if(timestamp >= (currentTimestamp - threeMonthsInSeconds) ){
-            FacebookInfo.postsPerThreeMonths++;
-        }
-        if(timestamp >= (currentTimestamp - sixMonthsInSeconds) ){
-            FacebookInfo.postsPerSixMonths++;
-        }
-        if(timestamp >= (currentTimestamp - nineMonthsInSeconds) ){
-            FacebookInfo.postsPerNineMonths++;
-        }
-        if(timestamp >= (currentTimestamp - yearInSeconds) ){
-            FacebookInfo.postsPerYear++;
+            FacebookInfo[Year]++;
         }
 
         return FacebookInfo;
