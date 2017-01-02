@@ -7,10 +7,10 @@ class FacebookBucket {
         this.talkingAbout = 0;  //week period
         this.totalLikes = 0;
         this.totalShares = 0;
-        this.totalPhotos = 0;
+        this.totalUploadedPhotos = 0;
+        this.totalUploadedVideos = 0;
 
         this.Events = {};
-        this.Videos = {};
 
         this.postsPerDay = 0;
         this.postsPerWeek = 0;
@@ -157,7 +157,7 @@ Facebook = {
                         break;
                     }
 
-                    FacebookInfo.totalPhotos += photosResults.data.length;
+                    FacebookInfo.totalUploadedPhotos += photosResults.data.length;
 
                     for (var g = 0; g < photosResults.data.length; g++) {
                         let timestamp = this.dateToTimestamp(new Date(photosResults.data[g].created_time));
@@ -169,10 +169,9 @@ Facebook = {
             }
         }
 
-        /*//LETS EXTRACT INFO ABOUT VIDEOS -------------------------------
+        //LETS EXTRACT INFO ABOUT VIDEOS -------------------------------
         let videosResults;
-        FacebookInfo.Videos.totalNumberVideos = 0;
-        FacebookInfo.Videos.videosIDs = {};
+        FacebookInfo.totalVideos = 0;
         for (var i = 0; ; i++) {
             if (i == 0) {
                 try{
@@ -196,11 +195,13 @@ Facebook = {
                 break;
             }
 
-            FacebookInfo.Videos.totalNumberVideos += videosResults.data.length;
+            FacebookInfo.totalUploadedVideos += videosResults.data.length;
+
             for (var l = 0; l < videosResults.data.length; l++) {
-                let videoID = videosResults.data[l].id;
-                FacebookInfo.Videos.videosIDs[videoID] = {};
-                FacebookInfo.Videos.videosIDs[videoID].date = new Date(videosResults.data[l].updated_time);
+                let timestamp = this.dateToTimestamp(new Date(videosResults.data[l].updated_time));
+
+                //count photos Frequency
+                FacebookInfo = this.videosFrequency(FacebookInfo, timestamp);
             }
         }
 
@@ -315,8 +316,7 @@ Facebook = {
 
             }
 
-        }*/
-        console.log(FacebookInfo);
+        }
 
 
     },
@@ -484,6 +484,41 @@ Facebook = {
         }
         if(timestamp >= (currentTimestamp - yearInSeconds) ){
             FacebookInfo.uploadedPhotosPerYear++;
+        }
+
+        return FacebookInfo;
+    },
+
+    videosFrequency : function (FacebookInfo, timestamp) {
+        let yearInSeconds = 60*60*24*365;
+        let monthInSeconds = 60*60*24*30;
+        let weekInSeconds = 60*60*24*7;
+        let threeMonthsInSeconds = monthInSeconds*3;
+        let sixMonthsInSeconds = monthInSeconds*6;
+        let nineMonthsInSeconds = monthInSeconds*9;
+        let dayInSeconds = 60*60*24;
+        let currentTimestamp = new Date().getTime()/1000;
+
+        if(timestamp >= (currentTimestamp - dayInSeconds) ){
+            FacebookInfo.uploadedVideosPerDay++;
+        }
+        if(timestamp >= (currentTimestamp - weekInSeconds) ){
+            FacebookInfo.uploadedVideosPerWeek++;
+        }
+        if(timestamp >= (currentTimestamp - monthInSeconds) ){
+            FacebookInfo.uploadedVideosPerMonth++;
+        }
+        if(timestamp >= (currentTimestamp - threeMonthsInSeconds) ){
+            FacebookInfo.uploadedVideosPerThreeMonths++;
+        }
+        if(timestamp >= (currentTimestamp - sixMonthsInSeconds) ){
+            FacebookInfo.uploadedVideosPerSixMonths++;
+        }
+        if(timestamp >= (currentTimestamp - nineMonthsInSeconds) ){
+            FacebookInfo.uploadedVideosPerNineMonths++;
+        }
+        if(timestamp >= (currentTimestamp - yearInSeconds) ){
+            FacebookInfo.uploadedVideosPerYear++;
         }
 
         return FacebookInfo;
