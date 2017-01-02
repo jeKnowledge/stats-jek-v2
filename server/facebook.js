@@ -4,7 +4,7 @@ class FacebookBucket {
     constructor() {
         this.pageLikes = 0;
         this.starRating = 0.0;
-        this.talkingAbout = 0;
+        this.talkingAbout = 0;  //week period
         this.totalLikes = 0;
         this.totalShares = 0;
         this.totalPhotos = 0;
@@ -117,9 +117,9 @@ Facebook = {
                 }
                 albumsResults = JSON.parse(results.content);
 
-            } else if (typeof(photosResults.paging.next) !== 'undefined'){
+            } else if (typeof(albumsResults.paging.next) !== 'undefined'){
                 try{
-                    results = HTTP.call('GET', photosResults.paging.next, {headers: {"User-Agent": "Meteor/1.0"}});
+                    results = HTTP.call('GET', albumsResults.paging.next, {headers: {"User-Agent": "Meteor/1.0"}});
                 } catch(e) {
                     console.log("AN ERROR OCURRED WHILE CALLING FOR FACEBOOK PHOTOS: ", e);
                     break;
@@ -132,7 +132,7 @@ Facebook = {
 
             for (var l = 0; l < albumsResults.data.length; l++) {
                 let photosResults;
-                let albumID = albumsResults.data[i].id;
+                let albumID = albumsResults.data[l].id;
                 for (var r = 0; ; r++) {
                     if (r == 0) {
                         try{
@@ -142,7 +142,8 @@ Facebook = {
                             break;
                         }
                         photosResults = JSON.parse(results.content);
-
+                    } else if (typeof(photosResults.paging) === 'undefined') {
+                        break;
                     } else if (typeof(photosResults.paging.next) !== 'undefined'){
                         try{
                             results = HTTP.call('GET', photosResults.paging.next, {headers: {"User-Agent": "Meteor/1.0"}});
@@ -155,15 +156,16 @@ Facebook = {
                     } else {
                         break;
                     }
+
+                    FacebookInfo.totalPhotos += photosResults.data.length;
+
+                    for (var g = 0; g < photosResults.data.length; g++) {
+                        let timestamp = this.dateToTimestamp(new Date(photosResults.data[g].created_time));
+
+                        //count photos Frequency
+                        FacebookInfo = this.photosFrequency(FacebookInfo, timestamp);
+                    }
                 }
-
-                FacebookInfo.totalPhotos += photosResults.data.length;
-                
-
-                let timestamp = this.dateToTimestamp(new Date(photosResults.data[l].created_time));
-
-                //count photos Frequency
-                FacebookInfo = this.photosFrequency(FacebookInfo, timestamp);
             }
         }
 
@@ -536,34 +538,3 @@ Facebook = {
 
 //TODO: Refresh token automatically
 //TODO: refactor everything to ECMA6
-
-/*EXAMPLE AN OF OBJECT THAT HOLDS ALL THE INFO ABOUT EVENTS
-    this.eventsIDs = { this.id1 = {name = "",
-                                    attendees = "",
-                                    startTime = "";
-                                },
-                    this.id2 = { name = "",
-                                attendees = "",
-                                startTime = "";
-                                },
-                    ...,
-                },
-    this.totalEvents = 0;
-    this.totalAttendees = 0;
-*/
-
-/*EXAMPLE AN OF OBJECT THAT HOLDS ALL THE INFO ABOUT PHOTOS
-    this.photosIDs = { this.id1 = {date = "" },
-                       this.id1 = {date = "" },
-                       ...,
-                       },
-    this.totalNumberPhotos = 0;
-*/
-
-/*EXAMPLE AN OF OBJECT THAT HOLDS ALL THE INFO ABOUT VIDEOS
-    this.videosIDs =  { this.id1 = {date = "" },
-                       this.id1 = {date = "" },
-                       ...,
-                       },
-    this.totalNumberVideos = 0;
-*/
