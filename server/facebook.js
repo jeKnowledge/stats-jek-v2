@@ -7,9 +7,9 @@ class FacebookBucket {
         this.talkingAbout = 0;
         this.totalLikes = 0;
         this.totalShares = 0;
+        this.totalPhotos = 0;
 
         this.Events = {};
-        this.Photos = {};
         this.Videos = {};
 
         this.postsPerDay = 0;
@@ -46,6 +46,7 @@ class FacebookBucket {
         this.eventsPerNineMonths = 0;
         this.eventsPerYear = 0;
 
+        this.uploadedPhotosPerDay = 0;
         this.uploadedPhotosPerWeek = 0;
         this.uploadedPhotosPerMonth = 0;
         this.uploadedPhotosPerThreeMonths = 0;
@@ -53,6 +54,7 @@ class FacebookBucket {
         this.uploadedPhotosPerNineMonths = 0;
         this.uploadedPhotosPerYear = 0;
 
+        this.uploadedVideosPerDay = 0;
         this.uploadedVideosPerWeek = 0;
         this.uploadedVideosPerMonth = 0;
         this.uploadedVideosPerThreeMonths = 0;
@@ -104,18 +106,16 @@ Facebook = {
 
         //LETS EXTRACT INFO ABOUT PHOTOS -------------------------------
         let results;
-        let photosResults;
-        FacebookInfo.Photos.totalNumberPhotos = 0;
-        FacebookInfo.Photos.photosIDs = {};
+        let albumsResults;
         for (var i = 0; ; i++) {
             if (i == 0) {
                 try{
-                    results = HTTP.call('GET', "https://graph.facebook.com/v2.8/" + Meteor.settings.JEKNOWLEDGE_FACEBOOK_ID + "/photos?access_token=" + Meteor.settings.TOKEN_JOEL_FACEBOOK, {headers: {"User-Agent": "Meteor/1.0"}});
+                    results = HTTP.call('GET', "https://graph.facebook.com/v2.8/" + Meteor.settings.JEKNOWLEDGE_FACEBOOK_ID + "/albums?access_token=" + Meteor.settings.TOKEN_JOEL_FACEBOOK, {headers: {"User-Agent": "Meteor/1.0"}});
                 } catch(e) {
                     console.log("AN ERROR OCURRED WHILE CALLING FOR FACEBOOK PHOTOS: ", e);
                     break;
                 }
-                photosResults = JSON.parse(results.content);
+                albumsResults = JSON.parse(results.content);
 
             } else if (typeof(photosResults.paging.next) !== 'undefined'){
                 try{
@@ -124,21 +124,50 @@ Facebook = {
                     console.log("AN ERROR OCURRED WHILE CALLING FOR FACEBOOK PHOTOS: ", e);
                     break;
                 }
-                photosResults = JSON.parse(results.content);
+                albumsResults = JSON.parse(results.content);
 
             } else {
                 break;
             }
 
-            FacebookInfo.Photos.totalNumberPhotos += photosResults.data.length;
-            for (var l = 0; l < photosResults.data.length; l++) {
-                let photoID = photosResults.data[l].id;
-                FacebookInfo.Photos.photosIDs[photoID] = {};
-                FacebookInfo.Photos.photosIDs[photoID].date = new Date(photosResults.data[l].created_time);
+            for (var l = 0; l < albumsResults.data.length; l++) {
+                let photosResults;
+                let albumID = albumsResults.data[i].id;
+                for (var r = 0; ; r++) {
+                    if (r == 0) {
+                        try{
+                            results = HTTP.call('GET', "https://graph.facebook.com/v2.8/" + albumID + "/photos?access_token=" + Meteor.settings.TOKEN_JOEL_FACEBOOK, {headers: {"User-Agent": "Meteor/1.0"}});
+                        } catch(e) {
+                            console.log("AN ERROR OCURRED WHILE CALLING FOR FACEBOOK ALBUM ID " + albumID + ": ", e);
+                            break;
+                        }
+                        photosResults = JSON.parse(results.content);
+
+                    } else if (typeof(photosResults.paging.next) !== 'undefined'){
+                        try{
+                            results = HTTP.call('GET', photosResults.paging.next, {headers: {"User-Agent": "Meteor/1.0"}});
+                        } catch(e) {
+                            console.log("AN ERROR OCURRED WHILE CALLING FOR FACEBOOK ALBUM ID " + albumID + ": ", e);
+                            break;
+                        }
+                        photosResults = JSON.parse(results.content);
+
+                    } else {
+                        break;
+                    }
+                }
+
+                FacebookInfo.totalPhotos += photosResults.data.length;
+                
+
+                let timestamp = this.dateToTimestamp(new Date(photosResults.data[l].created_time));
+
+                //count photos Frequency
+                FacebookInfo = this.photosFrequency(FacebookInfo, timestamp);
             }
         }
 
-        //LETS EXTRACT INFO ABOUT VIDEOS -------------------------------
+        /*//LETS EXTRACT INFO ABOUT VIDEOS -------------------------------
         let videosResults;
         FacebookInfo.Videos.totalNumberVideos = 0;
         FacebookInfo.Videos.videosIDs = {};
@@ -284,7 +313,7 @@ Facebook = {
 
             }
 
-        }
+        }*/
         console.log(FacebookInfo);
 
 
@@ -420,6 +449,41 @@ Facebook = {
                 }
             }
         }
+        return FacebookInfo;
+    },
+
+    photosFrequency : function (FacebookInfo, timestamp){
+        let yearInSeconds = 60*60*24*365;
+        let monthInSeconds = 60*60*24*30;
+        let weekInSeconds = 60*60*24*7;
+        let threeMonthsInSeconds = monthInSeconds*3;
+        let sixMonthsInSeconds = monthInSeconds*6;
+        let nineMonthsInSeconds = monthInSeconds*9;
+        let dayInSeconds = 60*60*24;
+        let currentTimestamp = new Date().getTime()/1000;
+
+        if(timestamp >= (currentTimestamp - dayInSeconds) ){
+            FacebookInfo.uploadedPhotosPerDay++;
+        }
+        if(timestamp >= (currentTimestamp - weekInSeconds) ){
+            FacebookInfo.uploadedPhotosPerWeek++;
+        }
+        if(timestamp >= (currentTimestamp - monthInSeconds) ){
+            FacebookInfo.uploadedPhotosPerMonth++;
+        }
+        if(timestamp >= (currentTimestamp - threeMonthsInSeconds) ){
+            FacebookInfo.uploadedPhotosPerThreeMonths++;
+        }
+        if(timestamp >= (currentTimestamp - sixMonthsInSeconds) ){
+            FacebookInfo.uploadedPhotosPerSixMonths++;
+        }
+        if(timestamp >= (currentTimestamp - nineMonthsInSeconds) ){
+            FacebookInfo.uploadedPhotosPerNineMonths++;
+        }
+        if(timestamp >= (currentTimestamp - yearInSeconds) ){
+            FacebookInfo.uploadedPhotosPerYear++;
+        }
+
         return FacebookInfo;
     },
 
