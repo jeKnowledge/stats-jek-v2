@@ -9,8 +9,18 @@ class FacebookBucket {
         this.totalShares = 0;
         this.totalUploadedPhotos = 0;
         this.totalUploadedVideos = 0;
+        this.totalEvents = 0;
+        this.totalEventsAttendees = 0;
+        this.totalPosts = 0;
+        this.totalReactions = 0;
+        this.totalComments = 0;
 
-        this.Events = {};
+        this.totalLoves = 0;
+        this.totalLaughs = 0;
+        this.totalSads = 0;
+        this.totalAngrys = 0;
+        this.totalWows = 0;
+        this.totalThankfuls = 0;
 
         this.postsPerDay = 0;
         this.postsPerWeek = 0;
@@ -19,15 +29,6 @@ class FacebookBucket {
         this.postsPerSixMonths = 0;
         this.postsPerNineMonths = 0;
         this.postsPerYear = 0;
-        this.totalPosts = 0;
-
-        this.totalLoves = 0;
-        this.totalLaughs = 0;
-        this.totalSads = 0;
-        this.totalAngrys = 0;
-        this.totalWows = 0;
-        this.totalThankfuls = 0;
-        this.totalReactions = 0;
 
         this.commentsPerDay = 0;
         this.commentsPerWeek = 0;
@@ -36,7 +37,6 @@ class FacebookBucket {
         this.commentsPerSixMonths = 0;
         this.commentsPerNineMonths = 0;
         this.commentsPerYear = 0;
-        this.totalComments = 0;
 
         this.eventsPerDay = 0;
         this.eventsPerWeek = 0;
@@ -63,13 +63,6 @@ class FacebookBucket {
         this.uploadedVideosPerYear = 0;
 
         //TODO: -------
-        this.growthPageLikesPerWeek = 0.0;
-        this.growthPageLikesPerMonth = 0.0;
-        this.growthPageLikesPerThreeMonths = 0.0;
-        this.growthPageLikesPerSixMonths = 0.0;
-        this.growthPageLikesPerNineMonths = 0.0;
-        this.growthPageLikesPerYear = 0.0;
-
         this.growthPageSharesPerWeek = 0.0;
         this.growthPageSharesPerMonth = 0.0;
         this.growthPageSharesPerThreeMonths = 0.0;
@@ -200,7 +193,7 @@ Facebook = {
             for (var l = 0; l < videosResults.data.length; l++) {
                 let timestamp = this.dateToTimestamp(new Date(videosResults.data[l].updated_time));
 
-                //count photos Frequency
+                //count videos Frequency
                 FacebookInfo = this.videosFrequency(FacebookInfo, timestamp);
             }
         }
@@ -208,9 +201,8 @@ Facebook = {
         //LETS EXTRACT INFO ABOUT EVENTS ----------------------------------------------------------------------
         let eventsResults;
         let eventAttending;
-        FacebookInfo.Events.totalNumberEvents = 0;
-        FacebookInfo.Events.totalNumberAttendees = 0;
-        FacebookInfo.Events.eventsIDs = {};
+        FacebookInfo.totalEvents = 0;
+        FacebookInfo.totalEventsAttendees = 0;
 
         for (var i = 0; ; i++) {
             if (i == 0) {
@@ -235,13 +227,14 @@ Facebook = {
                 break;
             }
 
-            FacebookInfo.Events.totalNumberEvents += eventsResults.data.length;
+            FacebookInfo.totalEvents += eventsResults.data.length;
             for (var y = 0; y < eventsResults.data.length; y++) {
                 let eventID = eventsResults.data[y].id;
-                FacebookInfo.Events.eventsIDs[eventID] = {};
-                FacebookInfo.Events.eventsIDs[eventID].name = eventsResults.data[y].name;
-                FacebookInfo.Events.eventsIDs[eventID].startTime = new Date (eventsResults.data[y].start_time);
-                FacebookInfo.Events.eventsIDs[eventID].attending = 0;
+
+                let timestamp = this.dateToTimestamp(new Date(eventsResults.data[y].start_time));
+
+                //count events Frequency
+                FacebookInfo = this.eventsFrequency(FacebookInfo, timestamp);
 
                 for (var r = 0; ; r++) {
                     if (r == 0) {
@@ -268,15 +261,14 @@ Facebook = {
 
                     for (var m = 0; m < eventAttending.data.length; m++) {
                         if (eventAttending.data[m].rsvp_status === 'attending') {
-                            FacebookInfo.Events.eventsIDs[eventID].attending++;
-                            FacebookInfo.Events.totalNumberAttendees++;
+                            FacebookInfo.totalEventsAttendees++;
                         }
                     }
                 }
             }
         }
 
-        //LETS EXTRACT INFO ABOUT POSTS
+        /*//LETS EXTRACT INFO ABOUT POSTS
         let postsResults;
         for (var i = 0; ; i++) {
             if (i == 0) {
@@ -316,7 +308,8 @@ Facebook = {
 
             }
 
-        }
+        }*/
+        console.log(FacebookInfo);
 
 
     },
@@ -329,7 +322,7 @@ Facebook = {
             console.log("AN ERROR OCURRED WHILE CALLING FOR FACEBOOK SHARES TO THE POST " + key + ": ", e);
         }
         sharesResults = JSON.parse(results.content);
-        console.log(sharesResults);
+
         if (typeof(sharesResults.shares) !== 'undefined') {
             FacebookInfo.totalShares += sharesResults.shares.count;
         }
@@ -451,6 +444,41 @@ Facebook = {
                 }
             }
         }
+        return FacebookInfo;
+    },
+
+    eventsFrequency : function (FacebookInfo, timestamp){
+        let yearInSeconds = 60*60*24*365;
+        let monthInSeconds = 60*60*24*30;
+        let weekInSeconds = 60*60*24*7;
+        let threeMonthsInSeconds = monthInSeconds*3;
+        let sixMonthsInSeconds = monthInSeconds*6;
+        let nineMonthsInSeconds = monthInSeconds*9;
+        let dayInSeconds = 60*60*24;
+        let currentTimestamp = new Date().getTime()/1000;
+
+        if(timestamp >= (currentTimestamp - dayInSeconds) ){
+            FacebookInfo.eventsPerDay++;
+        }
+        if(timestamp >= (currentTimestamp - weekInSeconds) ){
+            FacebookInfo.eventsPerWeek++;
+        }
+        if(timestamp >= (currentTimestamp - monthInSeconds) ){
+            FacebookInfo.eventsPerMonth++;
+        }
+        if(timestamp >= (currentTimestamp - threeMonthsInSeconds) ){
+            FacebookInfo.eventsPerThreeMonths++;
+        }
+        if(timestamp >= (currentTimestamp - sixMonthsInSeconds) ){
+            FacebookInfo.eventsPerSixMonths++;
+        }
+        if(timestamp >= (currentTimestamp - nineMonthsInSeconds) ){
+            FacebookInfo.eventsPerNineMonths++;
+        }
+        if(timestamp >= (currentTimestamp - yearInSeconds) ){
+            FacebookInfo.eventsPerYear++;
+        }
+
         return FacebookInfo;
     },
 
