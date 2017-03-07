@@ -1,15 +1,15 @@
 import { Meteor } from 'meteor/meteor';
-
 function init(){
   //GitHubCollection.remove({});
   //VimeoCollection.remove({});
   //SlackCollection.remove({});
-  FacebookCollection.remove({});
+  //FacebookCollection.remove({});
+  TwitterCollection.remove({});
   //Github.callStats();
   //Vimeo.callStats();
   //Slack.callStats();
-  Facebook.callStats();
-
+  //Facebook.callStats();
+  Twitter.callStats();
 }
 
 
