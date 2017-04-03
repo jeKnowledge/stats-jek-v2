@@ -1,16 +1,21 @@
 <head>
-  <title>Estatísticas da Jeknowledge</title>
-
+    <title>JekAnalytics</title>
 </head>
 
-<body>
-    <div class ="container">
-      <span>GITHUB STATISTICS</span>
-        <ul>
-          {{#each github}}
-            {{this}}
-          {{/each}}
-        </ul>
-    </div>
+<!-- TEMPLATE WHOLE APP -->
+<template name="App_body">
+    <body>
+        {{> Template.dynamic template=main}}
+    </body>
+</template>
 
-</body>
+<!-- HOME PAGE TEMPLATE -->
+<template name="Home_show_page">
+    <h1> JekAnalytics</h1>
+
+    <a href="/dir/root">Facebook</a>
+    <a href="/vimeo/">Vimeo</a>
+    <a href="#">Github</a>
+    <a href="#">Slack</a>
+    <a href="#">Twitter</a>
+</template>

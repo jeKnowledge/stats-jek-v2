@@ -27,17 +27,17 @@ Twitter = {
         //LETS EXTRACT THE BASIC INFO
         try{
             url = 'https://api.twitter.com/1.1/statuses/user_timeline.json';
-
+            parameters.owner_screen_name = 'nickfixe';
             parameters.oauth_timestamp = '1486740634';
             parameters.oauth_nonce = '3081383485';
             parameters.oauth_version = '1.0';
             parameters.oauth_signature_method = 'HMAC-SHA1';
-            parameters.oauth_token = '';
-            parameters.oauth_consumer_key = '';
+            parameters.oauth_token = '822427976688173056-P1HeGRnc4AKZZhsOB8hTDcVjOgTyKXx';
+            parameters.oauth_consumer_key = 'DC0sePOBbQ8bYdC8r4Smg';
 
-            oauth_signature = oauthSignature.generate('GET', url , parameters, "", "", { encodeSignature: true});
+            oauth_signature = oauthSignature.generate('GET', url , parameters, "gvVd30LM0rBlMxFLfaLP5YAI9CXsWiGF9rOeQwOIPcRIK1wkB", "axF3ErCJ0PsyUzqOFRmI4LRJGgyGFEzWyGgc4wCQZ9d7m", { encodeSignature: true});
             console.log(oauth_signature);
-            results = HTTP.call(httpVERB, "https://api.twitter.com/1.1/statuses/user_timeline.json?oauth_consumer_key", {headers: {"User-Agent": "Meteor/1.0"}});
+            results = HTTP.call(httpVERB, "https://api.twitter.com/1.1/statuses/user_timeline.json?oauth_consumer_key=DC0sePOBbQ8bYdC8r4Smg&oauth_signature_method=HMAC-SHA1&oauth_timestamp=1486740634&oauth_nonce=3081383485&oauth_version=1.0&oauth_token=822427976688173056-P1HeGRnc4AKZZhsOB8hTDcVjOgTyKXx&oauth_signature=Sbohos30EKbmXKuCxRJsgLmH%2B4c%3D", {headers: {"User-Agent": "Meteor/1.0"}});
 
 
         } catch(e) {

@@ -1,12 +1,7 @@
-# jeKnowledge Dashboard
-A Dashboard with statistics of some of the platforms that jeKnowledge uses, such as:
-   * Github
-   * Vimeo
-   * Slack
-   * Twitter
-   * Facebook
-   * Snapchat
-   * [Official Page](http://www.jek.pt)
+A Git web dashboard applied to our git project repository at https://git.dei.uc.pt
+
+# gitDashboard
+A Git web dashboard applied to our git project repository at [DEI Gitlab](https://git.dei.uc.pt)
 
 ## Run the project with the following commands:
 -  ```meteor run --settings settings.json```

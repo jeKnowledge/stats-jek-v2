@@ -2,3 +2,114 @@
 body{
 	background: cyan;
 }
+
+.logo img{
+	position:relative;
+	width:20%;
+	margin-top: 50px;
+	left:40px;
+}
+a, a:visited a:link{
+ text-decoration: none;
+ color:black;
+ font-size: 35px;
+ font-weight: bold;
+ padding-left: 60px;
+}
+
+.options img{
+ position: relative;
+ width: 50%;
+ margin-top: 50px;
+ left:30px;
+}
+span{
+	display: none;
+}
+.esconde{
+	display: none;
+}
+
+a:hover{
+	text-decoration:none;
+	color:#2c2d2d;
+}
+
+.navigator ul{
+	list-style-type: none;
+    margin: 0;
+    padding: 0;
+    width: 250px;
+    background-color:#109877;
+    padding-top: 50px;
+    padding-bottom: 400px;
+}
+
+.navigator ul a{
+    font-weight: lighter;
+    color: white;
+    font-size:18px;
+    text-align: left;
+
+}
+
+li a {
+    display: block;
+    color: #000;
+    padding: 8px 16px;
+    text-decoration: none;
+}
+
+li a.active {
+    background-color: #0c5943;
+    color: white;
+    text-decoration: none
+}
+
+li a:hover:not(.active) {
+    background-color:#0c5943;
+    color: white;
+}
+
+#Membro1,#Membro2,#Membro3,#Membro4,#Membro5,#Membro6{
+	background: url(drake.jpg) 10% 30% no-repeat;
+    width: 80.3%;
+    height: 250px;
+    margin-left:40px;
+}
+
+#Membro1,#Membro2,#Membro3,#Membro4,#Membro5,#Membro6 h1{
+	padding-top: 250px;
+}
+
+#Membro2,#Membro3,#Membro4,#Membro5,#Membro6 {
+    display: none;
+}
+
+#member_desc{
+    background: 10% 30% no-repeat;
+    width: 80.3%;
+    height: 250px;
+    margin-left:40px;
+}
+
+
+
+#files {
+   margin-left: 30%;
+}
+
+#files li{
+   display:inline-block;
+   padding: 8px 16px;
+}
+
+#files li a{
+   font-size: 12px;
+   text-decoration: none;
+   text-align: center;
+}
+
+#files img{
+   width:100px;
+}

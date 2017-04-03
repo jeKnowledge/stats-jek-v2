@@ -159,6 +159,8 @@ Vimeo = {
       vimeoInfo.totalPlays = videoResults.data[i].stats.plays;
 
       //EXTRACTING LIKES
+      vimeoInfo.ourVideos[i].likes.total = 0;
+      vimeoInfo.ourVideos[i].likes = [];
       try{
         results = HTTP.call('GET', "https://api.vimeo.com" + videoResults.data[i].uri + "/likes?per_page=100&access_token=" + Meteor.settings.TOKEN_JEK_VIMEO, {headers: {"User-Agent": "Meteor/1.0"}});
       } catch(e) {
@@ -166,7 +168,7 @@ Vimeo = {
       }
       let likesResults = JSON.parse(results.content);
 
-      vimeoInfo.ourVideos[i].likes.total = likesResults.total;
+      vimeoInfo.ourVideos[i].likes.total += likesResults.total;
       vimeoInfo.totalLikes += likesResults.total;
       if (likesResults.total > 0){
         for (let i = 0; i < likesResults.data.length; i++) {
@@ -176,6 +178,7 @@ Vimeo = {
         }
       }
     }
+    vimeoInfo.totalLengthVideos = vimeoInfo.totalLengthVideos/60;
 
     //LETS EXTRACT THE COLLECTIONS ----------------------------------------------------------------------
     try{
