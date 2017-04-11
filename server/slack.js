@@ -108,6 +108,7 @@ class SlackChannel {
 Slack = {
 
     callStats : function(){
+        console.log("LOOOOL1");
         //BUCKET THAT CONTAINS ALL THE DATA -------------------------------------------------------------------
         let slackInfo = new SlackBucket();
 
@@ -149,6 +150,7 @@ Slack = {
         let channelID;
 
         for (var i = 0; i < channelsResults.channels.length; i++) {
+
             slackInfo.numberChannels++;
 
             newChannel = new SlackChannel();
@@ -232,7 +234,7 @@ Slack = {
         //Calculating Most Active Users
         slackInfo = this.rankingUsers(slackInfo);
 
-        console.log(slackInfo.rankingMemberOfMoreChannels);
+
 
         SlackCollection.insert(slackInfo);
 

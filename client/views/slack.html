@@ -1,0 +1,47 @@
+<head>
+    <link rel="stylesheet" type="text/css" href="slack.css">
+</head>
+
+<template name="slack_page">
+    <div class ="container">
+      <h1>SLACK STATISTICS</h1>
+          <ul>
+              {{#each slack}}
+              <li> NUMERO DE MEMBROS: {{numberMembers}} </li>
+              <li> NUMERO DE CANAIS: {{numberChannels}} </li>
+              <li> CANAIS ATUAIS:</li>
+                <ul>
+                      {{#each channels}}
+                      <ul>
+                                <li> &nbsp; Nome: {{this}} </li>
+                              <li> &nbsp; Ativo: {{is_active}} </li>
+                              <li> &nbsp; Tópico: {{topic}} </li>
+                              <li> &nbsp; Criado a: {{created_at}} </li>
+                              <li> &nbsp; Criador: {{creator}} </li>
+                              <li> &nbsp; Número de Membros: {{num_members}} </li>
+                              <li> &nbsp; Total de Mensagens até ao Momento: {{messages}} </li>
+                              <li> &nbsp; Total de Ficheiros Partilhados até ao Momento: {{messages}} </li>
+                              <li> &nbsp; &nbsp; Mensagens por Dia: {{messagesPerDay}} </li>
+                              <li> &nbsp; &nbsp; Mensagens nesta Semana: {{messagesPerWeek}} </li>
+                              <li> &nbsp; &nbsp; Mensagens neste Mês: {{messagesPerMonth}} </li>
+                              <li> &nbsp; &nbsp; Mensagens nos últimos 3 Meses: {{messagesPerThreeMonths}} </li>
+                              <li> &nbsp; &nbsp; Mensagens nos últimos 6 Meses: {{messagesPerSixMonths}} </li>
+                              <li> &nbsp; &nbsp; Mensagens nos últimos 9 Meses: {{messagesPerNineMonths}} </li>
+                              <li> &nbsp; &nbsp; Mensagens no último Ano: {{messagesPerYear}} </li>
+                              <li> &nbsp; &nbsp; Ficheiros Partilhados por Dia: {{filesPerDay}} </li>
+                              <li> &nbsp;&nbsp;  Ficheiros Partilhados nesta Semana: {{filesPerWeek}} </li>
+                              <li> &nbsp;&nbsp;  Ficheiros Partilhados neste Mês: {{filesPerMonth}} </li>
+                              <li> &nbsp; &nbsp; Ficheiros Partilhados nos últimos 3 Meses: {{filesPerThreeMonths}} </li>
+                              <li> &nbsp; &nbsp; Ficheiros Partilhados nos últimos 6 Meses: {{filesPerSixMonths}} </li>
+                              <li> &nbsp; &nbsp; Ficheiros Partilhados nos últimos 9 Meses: {{filesPerNineMonths}} </li>
+                              <li> &nbsp; &nbsp; Ficheiros Partilhados no último Ano: {{filesPerYear}} </li>
+                      </ul>
+                      {{/each}}
+                  </ul>
+                  <p></p>
+
+              {{/each}}
+          </ul>
+
+    </div>
+</template>
