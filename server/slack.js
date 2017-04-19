@@ -630,4 +630,4 @@ Slack = {
                 growthTotalMessagesPerYear = 0.0;
             };
 */
-//TODO: Be carefull when slack resets slack history
+//TODO: BE CAREFULL WHEN SLACK RESETS HISTORY

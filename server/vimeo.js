@@ -194,7 +194,6 @@ Vimeo = {
       //TODO:
       //list of videos
       //vimeoInfo.collections[collectionsResults.data[i].name].total;
-      //run final tests to certify that everything works
      }
 
     VimeoCollection.insert(vimeoInfo);

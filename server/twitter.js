@@ -68,5 +68,3 @@ Twitter = {
             .replace(/\//g, '0'); // replace '/' with '0'
     }
 };
-
-//TODO: EVERYTHING NEEDS TO BE MODULAR, INCLUDING THE USER AGENT TAG "Meteor/1.0" AND VERSIONS OF THE API ("1.1")

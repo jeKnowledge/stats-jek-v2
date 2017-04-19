@@ -4,8 +4,12 @@ import { HTTP } from 'meteor/http';
 class GithubBucket {
   constructor() {
     this.allRepos = {};
+    this.allReposArray = [];
     this.numberMembers = 0;
     this.members = {};
+    this.membersArray = [];
+    this.differentLanguages = [];
+    this.numberDifferentLanguages = 0;
     this.totalSizeKB = 0;
     this.totalCommits = 0;
     this.totalDownloads = 0;
@@ -22,8 +26,8 @@ class GithubBucket {
     this.stargazersNames = [];
     this.totalDifferentContributors = 0;
     this.contributorsNames = [];
-    this.numberFollowers = 0;
-    this.numberFollowing = 0;
+
+    //TODO:PUT IN THE FRONTEND
     this.lastEvent = {};
     this.lastCommit = {};
     this.lastForked = {};
@@ -33,8 +37,10 @@ class GithubBucket {
     this.lastMerge = {};                 //or last closed pull request
     this.lastClosedIssue = {};
     this.lastOpenedIssue = {};
-    this.lastIssueMilestone;
-    this.lastPullMilestone;
+
+    //TODO:--------------------
+    this.lastIssueMilestone = {};
+    this.lastPullMilestone = {};
   }
 }
 
@@ -132,8 +138,6 @@ Github = {
         githubInfo.allRepos[repoName].programLanguage = repositoriesResults.data[i].language;
         githubInfo.allRepos[repoName].sizeKB = repositoriesResults.data[i].size;
         githubInfo.allRepos[repoName].url = repositoriesResults.data[i].html_url;
-        githubInfo.allRepos[repoName].numberFollowers = repositoriesResults.data[i].followers;
-        githubInfo.allRepos[repoName].numberFollowing = repositoriesResults.data[i].following;
         githubInfo.allRepos[repoName].createdAt = new Date(repositoriesResults.data[i].created_at).toUTCString();   //TIMEZONE IS ALREADY THE SAME AS OURS
         githubInfo.allRepos[repoName].lastUpdate = new Date(repositoriesResults.data[i].updated_at).toUTCString();  //TIMEZONE IS ALREADY THE SAME AS OURS
 
@@ -538,6 +542,7 @@ Github = {
           githubInfo.allRepos[repoName].branchesNames.push(myBranch);
 
         }
+        //TODO: LAST EVENT IS NOT RIGHT
         //EXTRACTING INFO ABOUT THE LAST EVENT OF THE REPOSITORY....
         try{
           lastEventResults = HTTP.call('GET', "https://api.github.com/repos/jeknowledge/" + repoName + "/events?access_token=" + Meteor.settings.TOKEN_JOEL_GITHUB, {headers: {"User-Agent": "Meteor/1.0"}});
@@ -552,10 +557,9 @@ Github = {
           githubInfo.allRepos[repoName].lastEvent.name = lastEventResults.data[0].actor.login;
           githubInfo.allRepos[repoName].lastEvent.date = new Date(lastEventResults.data[0].created_at).toUTCString();
         }
-        console.log("PASSEI");
-        if(i === 7){
-          break;
-        }
+
+        githubInfo.allReposArray.push( githubInfo.allRepos[repoName]);
+
     }
 
     //EXTRACTING INFO ABOUT THE LAST EVENTS OF JEKNOWLEDGE GITHUB ACCOUNT....
@@ -650,22 +654,21 @@ Github = {
           counter++;
         }
       }
-      if(counter === 6){
-        break;
-      }
     }
 
+    allRepos = {};
+    for(key in githubInfo.members){
+        githubInfo.membersArray.push(githubInfo.members[key]);
+    }
+    members = {};
+    //TODO: Initialize variables properly (for example downloads, etc)
     //TODO: calculate last milestone of a repository
-    //TODO: calculate last contribution of each member and contributor
+    //TODO: calculate last contribution(event, commit, fork, pull) of each member and contributor
     //TODO: calculate statistics
     //TODO: use .legth instead of incrementing
     //TODO: redundancy of forks, issues, commits...
-    //TODO: run final tests to assure that everything is stable and all info is reliable
-    //TODO: modularize code to allow different organizations get statistics from their platforms
 
-    GitHubCollection.insert(githubInfo);
-
-
+    GithubCollection.insert(githubInfo);
 
   },
 
@@ -689,11 +692,9 @@ Github = {
     this.gitUrl = "";
     this.createdAt = new Date();
     this.numberContributors = 0;
-    this.numberCommits = 0;
-    this.downloads = 0;
+    this.commitsJek = 0;
     this.contributors = {};
-    this.numberMembers = 0;
-    this.membersNames = [];
+    this.numberContributors = 0;
     this.closedIssues = [];
     this.openedIssues = [];
     this.totalIssues = 0;
@@ -715,7 +716,11 @@ Github = {
     this.numberBranches = 0;
     this.branchesNames = [];
     this.defaultBranch = "";
-    this.lastEvent;
+    this.downloads = 0;
+
+
+    //TODO:-------------------------
+    this.lastEvent = {};
     this.lastIssueMilestone;
     this.lastPullMilestone;
 */
@@ -739,6 +744,8 @@ Github = {
     this.openedPulls = [];            //the most recently opened pull will be the first of the array
     this.merges = [];                 //the most recently merged pull will be the first of the array
     this.lastPullRequest;            //it can be closed or opened
+
+    //TODO:-------------------------
     this.lastContribution;
 */
 
@@ -746,20 +753,26 @@ Github = {
     this.name = "";
     this.login = "";
     this.link = "";
-    this.numberCommits = 0;
+
+    //TODO: VERIFY IF THIS INFORMATION IS FEASIBLE
+    this.numberProjects = 0;
+    this.projectsInvolved = [];
+    this.lastForked = new Date();
     this.lastCommit = {date : new Date(), description : "", comments : []};
+    this.lastPullRequest;            //it can be closed or opened
+    this.numberCommits = 0;
     this.totalIssues = 0;                   //Issues that he/she is envolved with (closed and/or opened and/or was assigned to).
     this.numberOpenedIssues = 0;            //Opened issues that he/she is envolved with (opened and/or was assigned to).
     this.numberClosedIssues = 0;            //Closed issues that he/she was envolved with (closed and/or was assigned to).
     this.openedIssues = [];                 //Opened issues that he/she is envolved with (opened and/or was assigned to).
     this.closedIssues = [];                 //Closed issues that he/she was envolved with (closed and/or was assigned to).
     this.numberForks = 0;
-    this.lastForked = new Date();
     this.numberPulls = 0;
     this.numberOpenedPulls = 0;
     this.numberMerges = 0;
     this.openedPulls = [];            //the most recently opened pull will be the first of the array
     this.merges = [];                 //the most recently merged pull will be the first of the array
-    this.lastPullRequest;            //it can be closed or opened
     this.lastContribution;
+    this.login = "";
+
 */
