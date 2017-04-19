@@ -78,22 +78,22 @@ Template.slack_page.helpers({
    }
 });
 
-/*Template.facebook_page.helpers({
+Template.facebook_page.helpers({
     facebook : function(){
      return FacebookCollection.find();
    }
 });
 
+/*
+Template.github_page.helpers({
+    github : function(){
+     return GithubCollection.find();
+   }
+});
 
 Template.twitter_page.helpers({
     twitter : function(){
      return TwitterCollection.find();
-   }
-});
-
-Template.github_page.helpers({
-    github : function(){
-     return GithubCollection.find();
    }
 });
 

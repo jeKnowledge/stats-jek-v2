@@ -1,0 +1,67 @@
+<head>
+    <link rel="stylesheet" type="text/css" href="facebook.css">
+</head>
+
+<template name="facebook_page">
+    <div class ="container">
+      <h1>FACEBOOK STATISTICS</h1>
+          <ul>
+              {{#each facebook}}
+              <li> NUMERO DE LIKES NA PÁGINA: {{pageLikes}}</li>
+              <li> STAR RATING: {{starRating}}</li>
+              <li> A PAGINA FOI FALADA POR {{talkingAbout}} PESSOAS AO LONGO DA SEMANA</li>
+              <li> TOTAL DE POSTS: {{totalPosts}}</li>
+              <li> TOTAL DE REAÇÕES AOS NOSSOS POSTS: {{totalReactions}}</li>
+              <li> TOTAL DE COMENTÁRIOS AOS NOSSOS POSTS: {{totalComments}}</li>
+              <li> TOTAL DE LIKES AOS NOSSOS POSTS: {{totalLikes}}</li>
+              <li> TOTAL DE LAUGHS AOS NOSSOS POSTS: {{totalLaughs}}</li>
+              <li> TOTAL DE SADS AOS NOSSOS POSTS: {{totalSads}}</li>
+              <li> TOTAL DE ANGRYS AOS NOSSOS POSTS: {{totalAngrys}}</li>
+              <li> TOTAL DE WOWS AOS NOSSOS POSTS: {{totalWows}}</li>
+              <li> TOTAL DE THANKFULS AOS NOSSOS POSTS: {{totalThankfuls}}</li>
+              <li> TOTAL DE SHARES: {{totalShares}}</li>
+              <li> TOTAL DE FOTOS UPLOADADAS: {{totalUploadedPhotos}}</li>
+              <li> TOTAL DE VIDEOS UPLOADADOS: {{totalUploadedVideos}}</li>
+              <li> TOTAL DE EVENTOS CRIADOS: {{totalEvents}}</li>
+              <li> TOTAL DE PESSOAS QUE FORAM AOS NOSSOS EVENTOS: {{totalEventsAttendees}}</li>
+              <li> NÚMERO DE POSTS DE HOJE: {{postsPerDay}}</li>
+              <li> NÚMERO DE POSTS NESTA SEMANA: {{postsPerWeek}}</li>
+              <li> NÚMERO DE POSTS NESTE MÊS: {{postsPerMonth}}</li>
+              <li> NÚMERO DE POSTS NOS ÚLTIMOS 3 MESES: {{postsPerThreeMonths}}</li>
+              <li> NÚMERO DE POSTS NOS ÚLTIMOS 6 MESES: {{postsPerSixMonths}}</li>
+              <li> NÚMERO DE POSTS NOS ÚLTIMOS 9 MESES: {{postsPerNineMonths}}</li>
+              <li> NÚMERO DE POSTS NESTE ANO: {{postsPerYear}}</li>
+              <li> NÚMERO DE COMENTÁRIOS (NOS NOSSOS POSTS) DE HOJE: {{commentsPerDay}}</li>
+              <li> NÚMERO DE COMENTÁRIOS (NOS NOSSOS POSTS) NESTA SEMANA: {{commentsPerWeek}}</li>
+              <li> NÚMERO DE COMENTÁRIOS (NOS NOSSOS POSTS) NESTE MÊS: {{commentsPerMonth}}</li>
+              <li> NÚMERO DE COMENTÁRIOS (NOS NOSSOS POSTS) NOS ÚLTIMOS 3 MESES: {{commentsPerThreeMonths}}</li>
+              <li> NÚMERO DE COMENTÁRIOS (NOS NOSSOS POSTS) NOS ÚLTIMOS 6 MESES: {{commentsPerSixMonths}}</li>
+              <li> NÚMERO DE COMENTÁRIOS (NOS NOSSOS POSTS) NOS ÚLTIMOS 9 MESES: {{commentsPerNineMonths}}</li>
+              <li> NÚMERO DE COMENTÁRIOS (NOS NOSSOS POSTS) NESTE ANO: {{commentsPerYear}}</li>
+              <li> NÚMERO DE EVENTOS ORGANIZADOS HOJE: {{eventsPerDay}}</li>
+              <li> NÚMERO DE EVENTOS ORGANIZADOS NESTA SEMANA: {{eventsPerWeek}}</li>
+              <li> NÚMERO DE EVENTOS ORGANIZADOS NESTE MÊS: {{eventsPerMonth}}</li>
+              <li> NÚMERO DE EVENTOS ORGANIZADOS NOS ÚLTIMOS 3 MESES: {{eventsPerThreeMonths}}</li>
+              <li> NÚMERO DE EVENTOS ORGANIZADOS NOS ÚLTIMOS 6 MESES: {{eventsPerSixMonths}}</li>
+              <li> NÚMERO DE EVENTOS ORGANIZADOS NOS ÚLTIMOS 9 MESES: {{eventsPerNineMonths}}</li>
+              <li> NÚMERO DE EVENTOS ORGANIZADOS NESTE ANO: {{eventsPerYear}}</li>
+              <li> NÚMERO DE FOTOS UPLOADADAS HOJE: {{uploadedPhotosPerDay}}</li>
+              <li> NÚMERO DE FOTOS UPLOADADAS NESTA SEMANA: {{uploadedPhotosPerWeek}}</li>
+              <li> NÚMERO DE FOTOS UPLOADADAS NESTE MÊS: {{uploadedPhotosPerMonth}}</li>
+              <li> NÚMERO DE FOTOS UPLOADADAS NOS ÚLTIMOS 3 MESES: {{uploadedPhotosPerThreeMonths}}</li>
+              <li> NÚMERO DE FOTOS UPLOADADAS NOS ÚLTIMOS 6 MESES: {{uploadedPhotosPerSixMonths}}</li>
+              <li> NÚMERO DE FOTOS UPLOADADAS NOS ÚLTIMOS 9 MESES: {{uploadedPhotosPerNineMonths}}</li>
+              <li> NÚMERO DE FOTOS UPLOADADAS NESTE ANO: {{uploadedPhotosPerYear}}</li>
+              <li> NÚMERO DE VIDEOS UPLOADADOS HOJE: {{uploadedVideosPerDay}}</li>
+              <li> NÚMERO DE VIDEOS UPLOADADOS NESTA SEMANA: {{uploadedVideosPerWeek}}</li>
+              <li> NÚMERO DE VIDEOS UPLOADADOS NESTE MÊS: {{uploadedVideosPerMonth}}</li>
+              <li> NÚMERO DE VIDEOS UPLOADADOS NOS ÚLTIMOS 3 MESES: {{uploadedVideosPerThreeMonths}}</li>
+              <li> NÚMERO DE VIDEOS UPLOADADOS NOS ÚLTIMOS 6 MESES: {{uploadedVideosPerSixMonths}}</li>
+              <li> NÚMERO DE VIDEOS UPLOADADOS NOS ÚLTIMOS 9 MESES: {{uploadedVideosPerNineMonths}}</li>
+              <li> NÚMERO DE VIDEOS UPLOADADOS NESTE ANO: {{uploadedVideosPerYear}}</li>
+
+              {{/each}}
+          </ul>
+
+    </div>
+</template>

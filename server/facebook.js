@@ -205,6 +205,7 @@ Facebook = {
         FacebookInfo.totalEventsAttendees = 0;
 
         for (var i = 0; ; i++) {
+
             if (i == 0) {
                 try{
                     results = HTTP.call('GET', "https://graph.facebook.com/v2.8/" + Meteor.settings.JEKNOWLEDGE_FACEBOOK_ID + "/events?access_token=" + Meteor.settings.TOKEN_JOEL_FACEBOOK, {headers: {"User-Agent": "Meteor/1.0"}});
@@ -229,6 +230,7 @@ Facebook = {
 
             FacebookInfo.totalEvents += eventsResults.data.length;
             for (var y = 0; y < eventsResults.data.length; y++) {
+
                 let eventID = eventsResults.data[y].id;
 
                 let timestamp = this.dateToTimestamp(new Date(eventsResults.data[y].start_time));
@@ -271,6 +273,7 @@ Facebook = {
         //LETS EXTRACT INFO ABOUT POSTS
         let postsResults;
         for (var i = 0; ; i++) {
+
             if (i == 0) {
                 try{
                     results = HTTP.call('GET', "https://graph.facebook.com/v2.8/" + Meteor.settings.JEKNOWLEDGE_FACEBOOK_ID + "/posts?access_token=" + Meteor.settings.TOKEN_JOEL_FACEBOOK, {headers: {"User-Agent": "Meteor/1.0"}});
@@ -309,6 +312,7 @@ Facebook = {
             }
 
         }
+        FacebookCollection.insert(FacebookInfo);
     },
 
     countShares : function(FacebookInfo, key) {
