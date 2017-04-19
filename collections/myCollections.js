@@ -1,4 +1,4 @@
-GitHubCollection = new Mongo.Collection('github');
+GithubCollection = new Mongo.Collection('github');
 
 TwitterCollection = new Mongo.Collection('twitter');
 

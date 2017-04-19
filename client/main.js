@@ -84,13 +84,14 @@ Template.facebook_page.helpers({
    }
 });
 
-/*
+
 Template.github_page.helpers({
     github : function(){
      return GithubCollection.find();
    }
 });
 
+/*
 Template.twitter_page.helpers({
     twitter : function(){
      return TwitterCollection.find();

@@ -63,6 +63,7 @@ class FacebookBucket {
         this.uploadedVideosPerYear = 0;
 
         //TODO: -------
+        this.growthPageLikes = 0.0;
         this.growthPageSharesPerWeek = 0.0;
         this.growthPageSharesPerMonth = 0.0;
         this.growthPageSharesPerThreeMonths = 0.0;
@@ -503,5 +504,4 @@ Facebook = {
 
 };
 
-//TODO: Refresh token automatically
-//TODO: refactor everything to ECMA6
+//TODO: REFRESH TOKEN AUTOMATICALLY
