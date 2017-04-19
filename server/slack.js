@@ -6,12 +6,13 @@ class SlackBucket {
 
         this.numberMembers = 0;
         this.members = {};
+        this.membersArray = [];
         this.numberChannels = 0;
         this.channels = {};
 
-        this.channelsArchived = {};
         this.numberChannelsArchived = 0;
-        this.channelsActive = {};
+        this.channelsArchivedArray = [];
+        this.channelsActiveArray = [];
         this.numberChannelsActive = 0;
 
         this.totalMessagesPerDay = 0;
@@ -52,7 +53,7 @@ class SlackBucket {
 
         this.rankingMemberOfMoreChannels = [];
 
-        //TODO: ---------------------------
+        //TODO: ANOTHER INTERESTING STATS
         this.growthTotalMessagesPerDay = 0.0;
         this.growthTotalMessagesPerWeek = 0.0;
         this.growthTotalMessagesPerMonth = 0.0;
@@ -65,14 +66,18 @@ class SlackBucket {
 class SlackChannel {
     constructor() {
         this.name = "",
-        this.is_active = "",
+        this.is_archived = "",
         this.members = [],
         this.num_members = 0,
         this.topic = "",
         this.purpose = "",
         this.created_at = "",
         this.creator = "",
-        this.latest = {};
+
+        this.latestEventType = "",
+        this.latestEventUser = "";
+        this.latestEventText = "";
+        this.latestEventTs = "";
 
         this.messagesPerDay = 0;
         this.messagesPerWeek = 0;
@@ -108,7 +113,7 @@ class SlackChannel {
 Slack = {
 
     callStats : function(){
-        console.log("LOOOOL1");
+
         //BUCKET THAT CONTAINS ALL THE DATA -------------------------------------------------------------------
         let slackInfo = new SlackBucket();
 
@@ -123,6 +128,7 @@ Slack = {
         let userID;
         //"-1" because of the slackbot
         for (var i = 0; i < membersResults.members.length-1; i++) {
+
             slackInfo.numberMembers++;
             userID = membersResults.members[i].id;
             slackInfo.members[userID] = {};
@@ -151,14 +157,17 @@ Slack = {
 
         for (var i = 0; i < channelsResults.channels.length; i++) {
 
-            slackInfo.numberChannels++;
-
             newChannel = new SlackChannel();
 
             channelID = channelsResults.channels[i].id;
+            newChannel.created_at = this.timestampToDate(channelsResults.channels[i].created);
             newChannel.name = channelsResults.channels[i].name;
             newChannel.members = channelsResults.channels[i].members;
-            newChannel.is_archived = channelsResults.channels[i].is_archived;
+            if (channelsResults.channels[i].is_archived) {
+                newChannel.is_archived = 'yes';
+            } else {
+                newChannel.is_archived = 'no';
+            }
             newChannel.num_members = channelsResults.channels[i].num_members;
             newChannel.purpose = channelsResults.channels[i].purpose.value;
             newChannel.topic = channelsResults.channels[i].topic.value;
@@ -170,19 +179,24 @@ Slack = {
             }
             let channelResult = JSON.parse(results.content);
             let creatorID = channelResult.channel.creator;
-
-            newChannel.creator = creatorID;
-            //calculating channels that members created
-            if (slackInfo.members.hasOwnProperty(creatorID)){
-                slackInfo.members[creatorID].channelsCreated.push(channelID);
+            if (slackInfo.members[creatorID].name == '') {
+                newChannel.creator = slackInfo.members[creatorID].username;
+            } else {
+                newChannel.creator = slackInfo.members[creatorID].name;
             }
 
-            newChannel.latest = {};
+            //calculating channels that members created
+            if (slackInfo.members.hasOwnProperty(creatorID)){
+                slackInfo.members[creatorID].channelsCreated.push(newChannel.name);
+            }
+
             if(typeof(channelResult.channel.latest) !== 'undefined') {
-                newChannel.latest.type = channelResult.channel.latest.type;
-                newChannel.latest.user = channelResult.channel.latest.user;
-                newChannel.latest.text = channelResult.channel.latest.text;
-                newChannel.latest.ts = channelResult.channel.latest.ts;
+                newChannel.latestEventType = channelResult.channel.latest.type;
+                if (typeof(slackInfo.members[channelResult.channel.latest.user]) != 'undefined') {
+                    newChannel.latestEventUser = slackInfo.members[channelResult.channel.latest.user].username;
+                }
+                newChannel.latestEventText = channelResult.channel.latest.text;
+                newChannel.latestEventTs = this.timestampToDate(this.parseSlackTimestamp(channelResult.channel.latest.ts));
             }
 
             //calculating messages and files stats of each channel & each user
@@ -208,22 +222,25 @@ Slack = {
             newChannel.filesPerYear = statsChannel.filesPerYear;
             newChannel.totalFiles = statsChannel.totalMessages;
 
-            if(newChannel.is_archived){
+            if(newChannel.is_archived == 'yes'){
                 slackInfo.numberChannelsArchived++;
-                slackInfo.channelsArchived[channelID] = newChannel;
+                slackInfo.channelsArchivedArray.push(newChannel);
             } else {
                 slackInfo.numberChannelsActive++;
-                slackInfo.channelsActive[channelID] = newChannel;
+                slackInfo.channelsActiveArray.push(newChannel);
                 //calculating channels that members are involved in
-                for (var l = 0; l < slackInfo.channelsActive[channelID].members.length; l++) {
-                    let memberID = slackInfo.channelsActive[channelID].members[l];
+                for (var l = 0; l < newChannel.members.length; l++) {
+                    let memberID = newChannel.members[l];
                     if (slackInfo.members.hasOwnProperty(memberID)){
-                        slackInfo.members[memberID].channelsParticipates.push(channelID);
+                        slackInfo.members[memberID].channelsParticipates.push(newChannel.name);
                     }
                 }
             }
+
             slackInfo.channels[channelID] = newChannel;
         }
+
+        slackInfo.numberChannels = slackInfo.numberChannelsArchived + slackInfo.numberChannelsActive;
 
         //calculating totals of messages frequency & uploaded files
         slackInfo = this.totalFrequency(slackInfo);
@@ -234,7 +251,9 @@ Slack = {
         //Calculating Most Active Users
         slackInfo = this.rankingUsers(slackInfo);
 
-
+        /*destroy members and channels objects because they aren't useful for meteor client*/
+        slackInfo.members = {};
+        slackInfo.channels = {};
 
         SlackCollection.insert(slackInfo);
 
@@ -251,7 +270,6 @@ Slack = {
         let statsChannel = {};
 
         let newBucket = {};
-        newBucket.statsChannel = {};
 
         statsChannel.messagesPerDay = 0;
         statsChannel.messagesPerWeek = 0;
@@ -285,6 +303,7 @@ Slack = {
             if (historyResults.messages.length >= 1) {
                 let m;
                 for (m = 0; m < historyResults.messages.length; m++) {
+
                     //lets exclude warnings like "albert joined channel xpto" or "lisa left channel xyz"
                     if(typeof(historyResults.messages[m].subtype) === 'undefined' || historyResults.messages[m].subtype === 'file_share' ){
                         if(slackInfo.members.hasOwnProperty(historyResults.messages[m].user)){
@@ -362,7 +381,7 @@ Slack = {
                 latestTimestamp = historyResults.messages[m-1].ts;
             }
         } while(historyResults.has_more);
-
+        newBucket.statsChannel = statsChannel;
         newBucket.slackInfo = slackInfo;
         return newBucket;
     },
@@ -414,15 +433,6 @@ Slack = {
     // SLACK TIMESTAMP TO UNIX TIMESTAMP
     parseSlackTimestamp : function (slackTimestamp){
         return slackTimestamp.substring(0, slackTimestamp.indexOf('.'));
-        /* Hours
-        //let hours = date.getHours();
-
-        // Minutes
-        let minutes = "0" + date.getMinutes();
-
-        // Seconds
-        let seconds = "0" + date.getSeconds();
-        */
     },
 
     // UNIX TIMESTAMP TO DATE
@@ -430,10 +440,6 @@ Slack = {
         return (new Date(timestamp*1000));
     },
 
-
-    statsUser : function(){
-
-    },
     rankingUsers : function (slackInfo){
         let rankingMostActiveUsersPerDay = [];
         let rankingMostActiveUsersPerWeek = [];
@@ -444,43 +450,50 @@ Slack = {
         let rankingMostActiveUsersPerYear = [];
         let rankingMostActiveUsers = [];
         let rankingMemberOfMoreChannels = [];
+        let nome = '';
 
         for (var key in slackInfo.members) {
             if (slackInfo.members.hasOwnProperty(key)) {
+                slackInfo.membersArray.push(slackInfo.members[key]);
+                if(slackInfo.members[key].name == ''){
+                    nome = slackInfo.members[key].username;
+                } else {
+                    nome = slackInfo.members[key].name;
+                }
                 rankingMemberOfMoreChannels.push({
-                    name: slackInfo.members[key].name,
+                    name: nome,
                     totalMessages : slackInfo.members[key].channelsParticipates.length
                 });
                 rankingMostActiveUsersPerDay.push( {
-                    name: slackInfo.members[key].name,
+                    name: nome,
                     totalMessages : slackInfo.members[key].totalMessagesPerDay,
                 });
                 rankingMostActiveUsersPerWeek.push( {
-                    name: slackInfo.members[key].name,
+                    name: nome,
                     totalMessages : slackInfo.members[key].totalMessagesPerWeek
                 });
                 rankingMostActiveUsersPerMonth.push( {
-                    name: slackInfo.members[key].name,
+                    name: nome,
                     totalMessages : slackInfo.members[key].totalMessagesPerMonth
                 });
                 rankingMostActiveUsersPerThreeMonths.push( {
-                    name: slackInfo.members[key].name,
+                    name: nome,
                     totalMessages : slackInfo.members[key].totalMessagesPerThreeMonths
                 });
                 rankingMostActiveUsersPerSixMonths.push( {
-                    name: slackInfo.members[key].name,
+                    name: nome,
                     totalMessages : slackInfo.members[key].totalMessagesPerSixMonths
                 });
                 rankingMostActiveUsersPerNineMonths.push( {
-                    name: slackInfo.members[key].name,
+                    name: nome,
                     totalMessages : slackInfo.members[key].totalMessagesPerNineMonths
                 });
                 rankingMostActiveUsersPerYear.push( {
-                    name: slackInfo.members[key].name,
+                    name: nome,
                     totalMessages : slackInfo.members[key].totalMessagesPerYear
                 });
                 rankingMostActiveUsers.push( {
-                    name: slackInfo.members[key].name,
+                    name: nome,
                     totalMessages : slackInfo.members[key].totalMessages
                 });
             }
@@ -521,38 +534,40 @@ Slack = {
 
         for (var key in slackInfo.channels) {
             if (slackInfo.channels.hasOwnProperty(key)) {
-              rankingMostActiveChannelsDay.push( {
-                name: slackInfo.channels[key].name,
-                totalMessages : slackInfo.channels[key].messagesPerDay,
-              });
-              rankingMostActiveChannelsWeek.push( {
-                name: slackInfo.channels[key].name,
-                totalMessages : slackInfo.channels[key].messagesPerWeek,
-              });
-              rankingMostActiveChannelsMonth.push( {
-                name: slackInfo.channels[key].name,
-                totalMessages : slackInfo.channels[key].messagesPerMonth,
-              });
-              rankingMostActiveChannelsPerThreeMonths.push( {
-                name: slackInfo.channels[key].name,
-                totalMessages : slackInfo.channels[key].messagesPerThreeMonths,
-              });
-              rankingMostActiveChannelsPerSixMonths.push( {
-                name: slackInfo.channels[key].name,
-                totalMessages : slackInfo.channels[key].messagesPerSixMonths,
-              });
-              rankingMostActiveChannelsPerNineMonths.push( {
-                name: slackInfo.channels[key].name,
-                totalMessages : slackInfo.channels[key].messagesPerNineMonths,
-              });
-              rankingMostActiveChannelsYear.push( {
-                name: slackInfo.channels[key].name,
-                totalMessages : slackInfo.channels[key].messagesPerYear,
-              });
-              rankingMostActiveChannels.push( {
-                name: slackInfo.channels[key].name,
-                totalMessages : slackInfo.channels[key].totalMessages,
-              });
+                if (slackInfo.channels[key].is_archived == 'no') {
+                  rankingMostActiveChannelsDay.push( {
+                    name: slackInfo.channels[key].name,
+                    totalMessages : slackInfo.channels[key].messagesPerDay,
+                  });
+                  rankingMostActiveChannelsWeek.push( {
+                    name: slackInfo.channels[key].name,
+                    totalMessages : slackInfo.channels[key].messagesPerWeek,
+                  });
+                  rankingMostActiveChannelsMonth.push( {
+                    name: slackInfo.channels[key].name,
+                    totalMessages : slackInfo.channels[key].messagesPerMonth,
+                  });
+                  rankingMostActiveChannelsPerThreeMonths.push( {
+                    name: slackInfo.channels[key].name,
+                    totalMessages : slackInfo.channels[key].messagesPerThreeMonths,
+                  });
+                  rankingMostActiveChannelsPerSixMonths.push( {
+                    name: slackInfo.channels[key].name,
+                    totalMessages : slackInfo.channels[key].messagesPerSixMonths,
+                  });
+                  rankingMostActiveChannelsPerNineMonths.push( {
+                    name: slackInfo.channels[key].name,
+                    totalMessages : slackInfo.channels[key].messagesPerNineMonths,
+                  });
+                  rankingMostActiveChannelsYear.push( {
+                    name: slackInfo.channels[key].name,
+                    totalMessages : slackInfo.channels[key].messagesPerYear,
+                  });
+                  rankingMostActiveChannels.push( {
+                    name: slackInfo.channels[key].name,
+                    totalMessages : slackInfo.channels[key].totalMessages,
+                  });
+              }
             }
         }
 
@@ -596,7 +611,7 @@ Slack = {
 /*EXAMPLE AN OF OBJECT THAT HOLDS ALL THE INFO ABOUT A SLACK USER
     this.id = { username = "",
                 name = "",
-                channelsCreated = channelID;
+                channelsCreated = [];
                 channelsParticipates = [];
 
                 this.totalMessagesPerDay = 0;
@@ -608,7 +623,7 @@ Slack = {
                 this.totalMessagesPerYear = 0;
                 this.totalMessages = 0;
 
-                //TODO: -------------------------
+                //TODO: ANOTHER INTERESTING STATS
                 growthTotalMessagesPerDay = 0.0;
                 growthTotalMessagesPerWeek = 0.0;
                 growthTotalMessagesPerMonth = 0.0;

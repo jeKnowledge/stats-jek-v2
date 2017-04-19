@@ -8,38 +8,248 @@
           <ul>
               {{#each slack}}
               <li> NUMERO DE MEMBROS: {{numberMembers}} </li>
-              <li> NUMERO DE CANAIS: {{numberChannels}} </li>
-              <li> CANAIS ATUAIS:</li>
-                <ul>
-                      {{#each channels}}
+              <li> NUMERO TOTAL DE CANAIS (ATIVOS E ARQUIVADOS): {{numberChannels}} </li>
+              <li> NUMERO DE CANAIS ATIVOS: {{numberChannelsActive}} </li>
+              <li> NUMERO TOTAL DE CANAIS ARQUIVADOS: {{numberChannelsArchived}} </li>
+              <li> TOTAL DE MENSAGENS HOJE: {{totalMessagesPerDay}} </li>
+              <li> TOTAL DE MENSAGENS NESTA SEMANA: {{totalMessagesPerWeek}} </li>
+              <li> TOTAL DE MENSAGENS NESTE MÊS: {{totalMessagesPerMonth}} </li>
+              <li> TOTAL DE MENSAGENS NOS ÚLTIMOS 3 MESES: {{totalMessagesPerThreeMonths}} </li>
+              <li> TOTAL DE MENSAGENS NOS ÚLTIMOS 6 MESES: {{totalMessagesPerSixMonths}} </li>
+              <li> TOTAL DE MENSAGENS NOS ÚLTIMOS 9 MESES: {{totalMessagesPerNineMonths}} </li>
+              <li> TOTAL DE MENSAGENS NO ÚLTIMO ANO: {{totalMessagesPerYear}} </li>
+              <li> TOTAL DE MENSAGENS TROCADAS ATÉ AO MOMENTO: {{totalMessages}} </li>
+              <li> TOTAL DE FICHEIROS PARTILHADOS HOJE: {{totalFilesPerDay}} </li>
+              <li> TOTAL DE FICHEIROS PARTILHADOS NESTA SEMANA: {{totalFilesPerWeek}} </li>
+              <li> TOTAL DE FICHEIROS PARTILHADOS NESTE MÊS: {{totalFilesPerMonth}} </li>
+              <li> TOTAL DE FICHEIROS PARTILHADOS NOS ÚLTIMOS 3 MESES: {{totalFilesPerThreeMonths}} </li>
+              <li> TOTAL DE FICHEIROS PARTILHADOS NOS ÚLTIMOS 6 MESES: {{totalFilesPerSixMonths}} </li>
+              <li> TOTAL DE FICHEIROS PARTILHADOS NOS ÚLTIMOS 9 MESES: {{totalFilesPerNineMonths}} </li>
+              <li> TOTAL DE FICHEIROS PARTILHADOS NO ÚLTIMO ANO: {{totalFilesPerYear}} </li>
+              <li> TOTAL DE FICHEIROS PARTILHADOS TROCADAS ATÉ AO MOMENTO: {{totalFiles}} </li>
+
+              <li> RANKING DOS CANAIS MAIS ATIVOS DE SEMPRE: </li>
+                  <ul>
+                      {{#each rankingMostActiveChannels}}
+                        <li> ----- </li>
+                        <p style="font-size:60%;"> &nbsp; Nome: {{name}} </p>
+                        <p style="font-size:60%;"> &nbsp; Total de Mensagens: {{totalMessages}} </p>
+                      {{/each}}
+                </ul>
+            <p> -------------------------------------------------- </p>
+              <li> RANKING DOS CANAIS MAIS ATIVOS HOJE: </li>
+                  <ul>
+                      {{#each rankingMostActiveChannelsDay}}
+                      <li> ----- </li>
+                        <p style="font-size:60%;"> &nbsp; Nome: {{name}} </p>
+                        <p style="font-size:60%;"> &nbsp; Total de Mensagens: {{totalMessages}} </p>
+                      {{/each}}
+                </ul>
+                <p> -------------------------------------------------- </p>
+                <li> RANKING DOS CANAIS MAIS ATIVOS DURANTE A SEMANA: </li>
+                    <ul>
+                        {{#each rankingMostActiveChannelsWeek}}
+                        <li> ----- </li>
+                          <p style="font-size:60%;"> &nbsp; Nome: {{name}} </p>
+                          <p style="font-size:60%;"> &nbsp; Total de Mensagens: {{totalMessages}} </p>
+                        {{/each}}
+                  </ul>
+                  <p> -------------------------------------------------- </p>
+                  <li> RANKING DOS CANAIS MAIS ATIVOS NESTE MÊS: </li>
                       <ul>
-                                <li> &nbsp; Nome: {{this}} </li>
-                              <li> &nbsp; Ativo: {{is_active}} </li>
+                          {{#each rankingMostActiveChannelsMonth}}
+                          <li> ----- </li>
+                            <p style="font-size:60%;"> &nbsp; Nome: {{name}} </p>
+                            <p style="font-size:60%;"> &nbsp; Total de Mensagens: {{totalMessages}} </p>
+                          {{/each}}
+                    </ul>
+                <p> -------------------------------------------------- </p>
+                <li> RANKING DOS CANAIS MAIS ATIVOS NOS ÚLTIMOS 3 MESES: </li>
+                    <ul>
+                        {{#each rankingMostActiveChannelsPerThreeMonths}}
+                        <li> ----- </li>
+                          <p style="font-size:60%;"> &nbsp; Nome: {{name}} </p>
+                          <p style="font-size:60%;"> &nbsp; Total de Mensagens: {{totalMessages}} </p>
+                        {{/each}}
+                  </ul>
+                  <p> -------------------------------------------------- </p>
+                  <li> RANKING DOS CANAIS MAIS ATIVOS NOS ÚLTIMOS 6 MESES: </li>
+                      <ul>
+                          {{#each rankingMostActiveChannelsPerSixMonths}}
+                          <li> ----- </li>
+                          <p style="font-size:60%;"> &nbsp; Nome: {{name}} </p>
+                          <p style="font-size:60%;"> &nbsp; Total de Mensagens: {{totalMessages}} </p>
+                          {{/each}}
+                    </ul>
+                <p> -------------------------------------------------- </p>
+                <li> RANKING DOS CANAIS MAIS ATIVOS NOS ÚLTIMOS 9 MESES: </li>
+                    <ul>
+                        {{#each rankingMostActiveChannelsPerNineMonths}}
+                        <li> ----- </li>
+                        <p style="font-size:60%;"> &nbsp; Nome: {{name}} </p>
+                        <p style="font-size:60%;"> &nbsp; Total de Mensagens: {{totalMessages}} </p>
+                        {{/each}}
+                  </ul>
+              <p> -------------------------------------------------- </p>
+              <li> RANKING DOS CANAIS MAIS ATIVOS NO ÚLTIMO ANO: </li>
+                  <ul>
+                      {{#each rankingMostActiveChannelsYear}}
+                      <li> ----- </li>
+                      <p style="font-size:60%;"> &nbsp; Nome: {{name}} </p>
+                      <p style="font-size:60%;"> &nbsp; Total de Mensagens: {{totalMessages}} </p>
+                      {{/each}}
+                </ul>
+                <p> -------------------------------------------------- </p>
+                <li> RANKING DOS MEMBROS QUE PERTENCEM A MAIS CANAIS: </li>
+                    <ul>
+                        {{#each rankingMemberOfMoreChannels}}
+                        <li> ----- </li>
+                        <p style="font-size:60%;"> &nbsp; Nome: {{name}} </p>
+                        <p style="font-size:60%;"> &nbsp; Total de Canais: {{totalMessages}} </p>
+                        {{/each}}
+                  </ul>
+              <p> -------------------------------------------------- </p>
+              <li> RANKING DOS MEMBROS MAIS ATIVOS DE SEMPRE: </li>
+                  <ul>
+                      {{#each rankingMostActiveUsers}}
+                        <li> ----- </li>
+                        <p style="font-size:60%;"> &nbsp; Nome: {{name}} </p>
+                        <p style="font-size:60%;"> &nbsp; Total de Mensagens: {{totalMessages}} </p>
+                      {{/each}}
+                </ul>
+            <p> -------------------------------------------------- </p>
+              <li> RANKING DOS MEMBROS MAIS ATIVOS HOJE: </li>
+                  <ul>
+                      {{#each rankingMostActiveUsersPerDay}}
+                      <li> ----- </li>
+                        <p style="font-size:60%;"> &nbsp; Nome: {{name}} </p>
+                        <p style="font-size:60%;"> &nbsp; Total de Mensagens: {{totalMessages}} </p>
+                      {{/each}}
+                </ul>
+                <p> -------------------------------------------------- </p>
+                <li> RANKING DOS MEMBROS MAIS ATIVOS DURANTE A SEMANA: </li>
+                    <ul>
+                        {{#each rankingMostActiveUsersPerWeek}}
+                        <li> ----- </li>
+                          <p style="font-size:60%;"> &nbsp; Nome: {{name}} </p>
+                          <p style="font-size:60%;"> &nbsp; Total de Mensagens: {{totalMessages}} </p>
+                        {{/each}}
+                  </ul>
+                  <p> -------------------------------------------------- </p>
+                  <li> RANKING DOS MEMBROS MAIS ATIVOS NESTE MÊS: </li>
+                      <ul>
+                          {{#each rankingMostActiveUsersPerMonth}}
+                          <li> ----- </li>
+                            <p style="font-size:60%;"> &nbsp; Nome: {{name}} </p>
+                            <p style="font-size:60%;"> &nbsp; Total de Mensagens: {{totalMessages}} </p>
+                          {{/each}}
+                    </ul>
+                <p> -------------------------------------------------- </p>
+                <li> RANKING DOS MEMBROS MAIS ATIVOS NOS ÚLTIMOS 3 MESES: </li>
+                    <ul>
+                        {{#each rankingMostActiveUsersPerThreeMonths}}
+                        <li> ----- </li>
+                          <p style="font-size:60%;"> &nbsp; Nome: {{name}} </p>
+                          <p style="font-size:60%;"> &nbsp; Total de Mensagens: {{totalMessages}} </p>
+                        {{/each}}
+                  </ul>
+                  <p> -------------------------------------------------- </p>
+                  <li> RANKING DOS MEMBROS MAIS ATIVOS NOS ÚLTIMOS 6 MESES: </li>
+                      <ul>
+                          {{#each rankingMostActiveUsersPerSixMonths}}
+                          <li> ----- </li>
+                          <p style="font-size:60%;"> &nbsp; Nome: {{name}} </p>
+                          <p style="font-size:60%;"> &nbsp; Total de Mensagens: {{totalMessages}} </p>
+                          {{/each}}
+                    </ul>
+                <p> -------------------------------------------------- </p>
+                <li> RANKING DOS MEMBROS MAIS ATIVOS NOS ÚLTIMOS 9 MESES: </li>
+                    <ul>
+                        {{#each rankingMostActiveUsersPerNineMonths}}
+                        <li> ----- </li>
+                        <p style="font-size:60%;"> &nbsp; Nome: {{name}} </p>
+                        <p style="font-size:60%;"> &nbsp; Total de Mensagens: {{totalMessages}} </p>
+                        {{/each}}
+                  </ul>
+              <p> -------------------------------------------------- </p>
+              <li> RANKING DOS MEMBROS MAIS ATIVOS NO ÚLTIMO ANO: </li>
+                  <ul>
+                      {{#each rankingMostActiveUsersPerYear}}
+                      <li> ----- </li>
+                      <p style="font-size:60%;"> &nbsp; Nome: {{name}} </p>
+                      <p style="font-size:60%;"> &nbsp; Total de Mensagens: {{totalMessages}} </p>
+                      {{/each}}
+                </ul>
+            <p> -------------------------------------------------- </p>
+              <li> LISTAGEM DOS CANAIS ATIVOS:</li>
+              <div style="font-size:60%;">
+                      <ul>
+                          {{#each channelsActiveArray}}
+                                <li> &nbsp; Nome: {{name}} </li>
+                              <li> &nbsp; Arquivado: {{is_archived}} </li>
                               <li> &nbsp; Tópico: {{topic}} </li>
+                              <li> &nbsp; Propósito: {{purpose}} </li>
                               <li> &nbsp; Criado a: {{created_at}} </li>
                               <li> &nbsp; Criador: {{creator}} </li>
                               <li> &nbsp; Número de Membros: {{num_members}} </li>
+                              <li> &nbsp; Último Evento no Canal:</li>
+                                <li> &nbsp; &nbsp; Tipo de Evento: {{latestEventType}}</li>
+                                <li> &nbsp; &nbsp; Membro: {{latestEventUser}}</li>
+                                <li> &nbsp; &nbsp; Texto: {{latestEventText}}</li>
+                                <li> &nbsp; &nbsp; Quando: {{latestEventTs}}</li>
                               <li> &nbsp; Total de Mensagens até ao Momento: {{messages}} </li>
-                              <li> &nbsp; Total de Ficheiros Partilhados até ao Momento: {{messages}} </li>
-                              <li> &nbsp; &nbsp; Mensagens por Dia: {{messagesPerDay}} </li>
+                              <li> &nbsp; Total de Ficheiros Partilhados até ao Momento: {{files}} </li>
+                              <li> &nbsp; &nbsp; Mensagens Hoje: {{messagesPerDay}} </li>
                               <li> &nbsp; &nbsp; Mensagens nesta Semana: {{messagesPerWeek}} </li>
                               <li> &nbsp; &nbsp; Mensagens neste Mês: {{messagesPerMonth}} </li>
                               <li> &nbsp; &nbsp; Mensagens nos últimos 3 Meses: {{messagesPerThreeMonths}} </li>
                               <li> &nbsp; &nbsp; Mensagens nos últimos 6 Meses: {{messagesPerSixMonths}} </li>
                               <li> &nbsp; &nbsp; Mensagens nos últimos 9 Meses: {{messagesPerNineMonths}} </li>
                               <li> &nbsp; &nbsp; Mensagens no último Ano: {{messagesPerYear}} </li>
-                              <li> &nbsp; &nbsp; Ficheiros Partilhados por Dia: {{filesPerDay}} </li>
+                              <li> &nbsp; &nbsp; Ficheiros Partilhados Hoje: {{filesPerDay}} </li>
                               <li> &nbsp;&nbsp;  Ficheiros Partilhados nesta Semana: {{filesPerWeek}} </li>
                               <li> &nbsp;&nbsp;  Ficheiros Partilhados neste Mês: {{filesPerMonth}} </li>
                               <li> &nbsp; &nbsp; Ficheiros Partilhados nos últimos 3 Meses: {{filesPerThreeMonths}} </li>
                               <li> &nbsp; &nbsp; Ficheiros Partilhados nos últimos 6 Meses: {{filesPerSixMonths}} </li>
                               <li> &nbsp; &nbsp; Ficheiros Partilhados nos últimos 9 Meses: {{filesPerNineMonths}} </li>
                               <li> &nbsp; &nbsp; Ficheiros Partilhados no último Ano: {{filesPerYear}} </li>
+                              <p> -------------------------------------------------- </p>
+                            {{/each}}
                       </ul>
-                      {{/each}}
-                  </ul>
+                  </div>
                   <p></p>
+                  <li> LISTAGEM DOS MEMBROS:</li>
+                  <div style="font-size:60%;">
+                          <ul>
+                              {{#each membersArray}}
+                              <li> &nbsp; Username: {{username}} </li>
+                                    <li> &nbsp; Nome: {{name}} </li>
+                                    <li> &nbsp; Mensagens Enviadas Neste Hoje: {{totalMessagesPerDay}} </li>
+                                    <li> &nbsp; Mensagens Enviadas Nesta Semana: {{totalMessagesPerWeek}} </li>
+                                    <li> &nbsp; Mensagens Enviadas Neste Mês: {{totalMessagesPerMonth}} </li>
+                                    <li> &nbsp; Mensagens Enviadas Nos Últimos 3 Meses: {{totalMessagesPerThreeMonths}} </li>
+                                    <li> &nbsp; Mensagens Enviadas Nos Últimos 6 Meses: {{totalMessagesPerSixMonths}} </li>
+                                    <li> &nbsp; Mensagens Enviadas Nos Últimos 9 Meses: {{totalMessagesPerNineMonths}} </li>
+                                    <li> &nbsp; Mensagens Enviadas Neste Ano: {{totalMessagesPerYear}} </li>
+                                    <li> &nbsp; Mensagens Enviadas Desde Sempre: {{totalMessages}} </li>
+                                    <li> &nbsp; Canais em que Participa: </li>
+                                        <ul>
+                                        {{#each channelsParticipates}}
+                                        <li> {{this}} </li>
+                                        {{/each}}
+                                        </ul>
+                                    <li> &nbsp; Canais Que Criou: </li>
+                                        <ul>
+                                        {{#each channelsCreated}}
+                                        <li> {{this}} </li>
+                                        {{/each}}
+                                        </ul>
 
+                                  <p> -------------------------------------------------- </p>
+                                {{/each}}
+                          </ul>
+                      </div>
+                      <p></p>
               {{/each}}
           </ul>
 

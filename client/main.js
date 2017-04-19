@@ -74,7 +74,6 @@ Template.vimeo_page.helpers({
 
 Template.slack_page.helpers({
     slack : function(){
-    
      return SlackCollection.find();
    }
 });
