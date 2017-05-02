@@ -559,6 +559,9 @@ Github = {
         }
 
         githubInfo.allReposArray.push( githubInfo.allRepos[repoName]);
+        if (i == 10) {
+            break;
+        }
 
     }
 
@@ -667,7 +670,6 @@ Github = {
     //TODO: calculate statistics
     //TODO: use .legth instead of incrementing
     //TODO: redundancy of forks, issues, commits...
-
     GithubCollection.insert(githubInfo);
 
   },

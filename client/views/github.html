@@ -8,6 +8,43 @@
       <ul>
           {{#each github}}
           <li> NUMERO DE MEMBROS: {{numberMembers}}</li>
+          <li> TOTAL DE COMMITS: {{totalCommits}}</li>
+          <li> TOTAL DE DOWNLOADS: {{totalDownloads}}</li>
+          <li> TOTAL DE KB DE CÓDIGO: {{totalSizeKB}}</li>
+          <li> TOTAL DE FORKS: {{totalForks}}</li>
+          <li> NÚMERO DE LINGUAGENS DE PROGRAMAÇÃO DIFERENTES: {{numberDifferentLanguages}}</li>
+          <li> TOTAL DE WATCHERS: {{totalWatchers}}</li>
+          <li> TOTAL DE STARGAZERS: {{totalStargazers}}</li>
+          <li> TOTAL DE ISSUES: {{totalIssues}}</li>
+          <li> TOTAL DE OPENED ISSUES: {{totalOpenedIssues}}</li>
+          <li> TOTAL DE CLOSED ISSUES: {{totalClosedIssues}}</li>
+          <li> TOTAL DE OPENED PULLS: {{totalOpenedPulls}}</li>
+          <li> TOTAL DE MERGES: {{totalMerges}}</li>
+            <li> LISTAGEM DOS MEMBROS: </li>
+            <ul>
+              {{#each membersArray}}
+              <li> ----- </li>
+                  <p style="font-size:60%;"> &nbsp; Nome: {{name}} </p>
+                  <p style="font-size:60%;"> &nbsp; Url: {{url}} </p>
+              {{/each}}
+            </ul>
+            <li> INFORMAÇÃO SOBRE OS REPOSITÓRIOS: </li>
+              <ul>
+                {{#each allReposArray}}
+                <li> ----- </li>
+                    <p style="font-size:60%;"> &nbsp; Descrição do Projeto: {{description}} </p>
+                    <p style="font-size:60%;"> &nbsp; Tecnologia Usada: {{programLanguage}} </p>
+                    <p style="font-size:60%;"> &nbsp; Commits feitos por Membros da Jek: {{commitsJek}} </p>
+                    <p style="font-size:60%;"> &nbsp; Total de Contribuintes: {{numberContributors}} </p>
+                    <p style="font-size:60%;"> &nbsp; Tamanho em KB: {{sizeKB}} </p>
+                    <p style="font-size:60%;"> &nbsp; Criado a: {{createdAt}} </p>
+                    <p style="font-size:60%;"> &nbsp; Numero de Forks: {{numberForks}} </p>
+                    <p style="font-size:60%;"> &nbsp; Numero de Branches: {{numberBranches}} </p>
+                    <p style="font-size:60%;"> &nbsp; Foi Alterado pela Última Vez em: {{lastUpdate}} </p>
+                    <p style="font-size:60%;"> &nbsp; Branch Default: {{defaultBranch}} </p>
+                    <p style="font-size:60%;"> &nbsp; Url: {{url}} </p>
+                {{/each}}
+              </ul>
             {{/each}}
         </ul>
 
