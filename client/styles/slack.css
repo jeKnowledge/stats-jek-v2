@@ -1,0 +1,24 @@
+body{
+	 padding: 0;
+   margin-left: 0;
+	 margin-right: 0;
+}
+.textslack{
+	background-image: url("https://2.bp.blogspot.com/-j2mzVmALJkA/WQnN-rE6HnI/AAAAAAAAAQk/V3fXP-h8PXcDwjd6PDdLaH08fjOAXnLzACLcB/s1600/slsals-01.jpg");
+  height: 400px;
+	width:100%;
+	background-position: bottom center;
+ 	background-repeat: no-repeat;
+	background-size:  cover;
+
+ }
+.textslack h1{
+	font-family: 'Hind', sans-serif;
+	font-size: 50px;
+  font-weight: 900;
+  margin: 0;
+  padding-top: 30px;
+	padding-left:30px;
+  text-align: left;
+	color: white;
+}

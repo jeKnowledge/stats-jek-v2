@@ -1,3 +1,185 @@
 body{
-	background: red;
+	 padding: 0;
+   margin-left: 0;
+	 margin-right: 0;
+}
+.text{
+	background-image: url("https://2.bp.blogspot.com/-UWzrqv6Xxng/WQUhI_3H8GI/AAAAAAAAAOI/mgAXn4Tuq54H61F0Ird4UUnda9d9iRvawCLcB/s1600/adeus-01.jpg");
+  height: 400px;
+	width:100%;
+	background-position: bottom center;
+ 	background-repeat: no-repeat;
+	background-size:  cover;
+
+ }
+.text h1{
+	font-family: 'Hind', sans-serif;
+	font-size: 50px;
+  font-weight: 900;
+  margin: 0;
+  padding-top: 30px;
+	padding-left:30px;
+  text-align: left;
+	color: white;
+
+
+	}
+.simbolo img{
+	margin-top:330px;
+	display: block;
+
+}
+
+.simbolo{
+  padding-top: 0px;
+	position:absolute;
+	left:46%;
+	right:54%;
+}
+
+
+.incial li{
+	font-family: 'Hind', sans-serif;
+  font-size: 20px;
+  font-weight: 500;
+  margin: 0;
+  padding-top: 10px;
+	padding-bottom: 10px;
+  text-align: center;
+	color: white;
+	width:100%
+}
+
+
+	.introdução{
+		margin-left: auto;
+		margin-right: auto;
+	  padding: 30px 0px 10px 0px;
+	  width: 100%;
+		background-color:#6EC4E9;
+		margin-bottom: 50px;
+		margin-top:20px;
+	}
+
+	.seguidores{
+		margin: 0 auto;
+		padding-top: 10px;
+		display: flex;
+		flex-direction: row;
+		justify-content: space-around;
+		/*border:1px solid blue;*/
+		max-width: 200px;
+	}
+	.seguidores .icon {
+		align-items: center;
+		font-family: 'Raleway', sans-serif;
+	  text-align: center;
+
+	}
+
+
+
+.video{
+	/*margin: 50px auto;*/
+	margin-left: auto;
+	margin-right: auto;
+	margin-bottom: 50px;
+	margin-top: 30px;
+  padding: 10px 0px 0px 0px;
+  width: 100%;
+	background-color:#6EC4E9;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+	align-items: center;
+
+}
+
+.video_img{
+	display: inline-block;
+  margin: auto;
+}
+
+.descripton{
+	display: inline-block;
+  width: 85%;
+}
+
+.descripton ul {
+	padding: 0;
+  margin: 10px 0px;
+	font-family: 'Hind', sans-serif;
+	text-align: left;
+	color: white;
+}
+
+li {
+  margin: 0;
+  list-style: none;
+}
+
+.titulo2 li {
+  margin: 0;
+  list-style: none;
+	text-align: center;
+	font-family: 'Hind', sans-serif;
+	color:white;
+	font-size: 20px;
+}
+.titulo2{
+background-color:#333;
+  padding: 10px 0px 10px 0px;
+
+}
+.titulo1 li {
+  margin: 0;
+  list-style: none;
+	text-align: center;
+	font-family: 'Hind', sans-serif;
+	color:white;
+	font-size: 20px;
+}
+.titulo1 {
+border-radius: 5px;
+background-color:#6EC4E9;
+padding: 10px 0px 10px 0px;
+margin-left: auto;
+margin-right: auto;
+width: 70%;
+margin-top: 10px;
+margin-bottom: 30px;
+
+
+}
+.colab{
+	/*margin-left: auto;
+	margin-right: auto;*/
+	margin-bottom: 50px;
+	margin-top: 30px;
+  padding: 10px 0px 0px 0px;
+  width: 100%;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
+	align-items: center;
+}
+.colab_img img{
+	display: inline-block;
+  margin-left: 50px;
+	align-items: flex-end;
+
+}
+
+.colab_des{
+	display: inline-block;
+  width: 50%;
+
+}
+
+.colab_des tr {
+	padding: 0;
+  margin: 10px 0px;
+	font-family: 'Hind', sans-serif;
+	text-align: left;
+	color: #333;
 }

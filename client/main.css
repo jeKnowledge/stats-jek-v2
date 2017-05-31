@@ -1,7 +1,31 @@
 /* CSS declarations go here */
 body{
-	background: cyan;
+	background: white;
+	  padding: 0;
+  margin: 0;
+
+
 }
+.header h1{
+	font-family: 'Hind', sans-serif;
+	color: white;
+	text-align: center;
+	font-size: 70px;
+ margin-top: 0px;
+ margin-bottom: 80px;
+ position: relative;
+ top: 290px;
+}
+.header{
+	background-image: url('https://3.bp.blogspot.com/-kHkciP9D0-0/WQUFE5sXSmI/AAAAAAAAAN4/o91nzrlJrAs1ys_G8rbhdSdCtjyEOyI0ACLcB/s1600/%252B6%252B65656-01.jpg');
+	background-position: bottom center;
+	background-repeat: no-repeat;
+	background-size: cover;
+  height: 420px;
+	width: 100%;
+
+}
+
 
 .logo img{
 	position:relative;
@@ -9,14 +33,60 @@ body{
 	margin-top: 50px;
 	left:40px;
 }
+
 a, a:visited a:link{
  text-decoration: none;
- color:black;
- font-size: 35px;
+ color:#333;
+ font-family: 'Hind', sans-serif;
+ font-size: 20px;
  font-weight: bold;
- padding-left: 60px;
+ text-align: center;
+ display: inline-block;
+ margin:auto;
+
+
+}
+.containers {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 10px;
+	display: flex;
+	flex-direction: row;
+	justify-content: space-around;
 }
 
+.supporting {
+  padding-top: 50px;
+  padding-bottom: 0px;
+
+}
+
+.supporting .col {
+	align-items: center;
+	text-align: center;
+}
+
+.supporting img {
+  height: 100px;
+
+}
+.clearfix{
+	clear:both;
+}
+/*.footer {
+  background-color: #333;
+  color: #fff;
+  padding: 30px 0;
+}
+
+.footer p {
+  font-family: arial, sans-serif;
+  text-transform: uppercase;
+  font-size: 11px;
+	text-align: center;
+	 position: relative;
+}
+/*---------------------------------*/
 .options img{
  position: relative;
  width: 50%;
@@ -32,7 +102,7 @@ span{
 
 a:hover{
 	text-decoration:none;
-	color:#2c2d2d;
+	color:#333;
 }
 
 .navigator ul{
@@ -79,6 +149,7 @@ li a:hover:not(.active) {
 }
 
 #Membro1,#Membro2,#Membro3,#Membro4,#Membro5,#Membro6 h1{
+
 	padding-top: 250px;
 }
 

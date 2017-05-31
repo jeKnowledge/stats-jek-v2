@@ -559,9 +559,6 @@ Github = {
         }
 
         githubInfo.allReposArray.push( githubInfo.allRepos[repoName]);
-        if (i == 10) {
-            break;
-        }
 
     }
 

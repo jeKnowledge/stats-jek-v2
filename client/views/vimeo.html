@@ -4,57 +4,122 @@
 
 <template name="vimeo_page">
     <div class ="container">
+      <div class ="simbolo">
+          <img src="https://lh3.googleusercontent.com/-dWSOM9LokCg/WQUs0MRafAI/AAAAAAAAAOg/WSckstuudCwIpigo6Pl_JKqKxKzczadeQCL0B/s530-d-p-rw/zZPcs6Gu-01.png" width="130px">
+      </div>
+        <div class = "text">
       <h1>VIMEO STATISTICS</h1>
-          <ul>
+        </div>
+
               {{#each vimeo}}
-                <li> O CANAL FOI CRIADO: {{createdAt}} </li>
-                <p></p>
+      <div class = "introdução">
+          <ul>
+        <div class = "incial">
+            <li> O CANAL FOI CRIADO: {{createdAt}} </li>
+     </div>
+                <div class = "incial">
                 <li> LINK DO CANAL: {{myLink}} </li>
-                <p></p>
+
+              </div>
+              <div class = "incial">
                 <li> BIO: {{mybio}} </li>
-                <p></p>
+
+              </div>
+              <div class = "incial">
                 <li> NÚMERO DE FOLLOWERS: {{numberFollowers}} </li>
-                <p></p>
+
+              </div>
+            </ul>
+            </div>
+              <div class = "titulo2">
                 <li> NOMES DOS FOLLOWERS: </li>
+              </div>
                 {{#each followersNames}}
-                    <tr> &nbsp; nome: {{name}} </tr>
-                    <tr> &nbsp; link: {{link}} </tr>
+
+                <div class = "seguidores">
+          <div class ="icon">
+
+  <a href="{{link}}"><img src="https://f.vimeocdn.com/images_v6/professionals/icon-vod-vimeo-blue.svg" width="30px"></a>
+                    <tr> &nbsp; Nome: {{name}} </tr>
+                  <!--   <tr> &nbsp; Link: {{link}} </tr>-->
+                    <p></p><br>
+                  </div>
+  </div>
+
+
+
                 {{/each}}
+
+
+                <p></p><br>
+
+
                 <p></p>
-                <li> TOTAL DE MINUTOS DE VIDEO: {{totalLengthVideos}} Mins</li>
-                <p></p>
+                <div class =  "titulo1">
                 <li> TOTAL DE VIDEOS NO CANAL: {{totalVideos}} </li>
+              </div>
                 <p></p>
+                <div class =  "titulo1">
                 <li> TOTAL DE PLAYS: {{totalPlays}} </li>
+              </div>
                 <p></p>
+                <div class =  "titulo1">
                 <li> TOTAL DE LIKES: {{totalLikes}} </li>
+              </div>
                 <p></p>
+                <div class =  "titulo1">
                 <li> VIDEOS EM COLABORAÇÃO: {{totalAppearances}} </li>
+              </div>
                 <p></p>
+                <div class =  "titulo1">
                 <li> VIDEOS PRODUZIDOS: {{totalOurVideos}} </li>
+              </div>
                 <p></p>
+
+
+                <div class =  "titulo2">
                 <li> LISTAGEM DAS COLABORAÇÕES:</li>
+              </div>
                 {{#each appearances}}
-                    <tr> &nbsp; título: {{name}} </tr>
-                    <tr> &nbsp; link: {{link}} </tr>
+                <div class ="colab">
+                <div class ="colab_img">
+              <img src="http://www.freeiconspng.com/uploads/team-icon-6.png" width="250px">
+              </div>
+              <div class ="colab_des">
+                    <tr> &nbsp; Título: {{name}} </tr>
+                    <tr> &nbsp; Link: {{link}} </tr>
                     <tr> &nbsp; Descrição: {{description}} </tr>
                     <tr> &nbsp; Duração em Segundos: {{lengthInSecs}} </tr>
                     <tr> &nbsp; Likes: {{likes}} </tr>
+                  </div>
+                </div>
                 {{/each}}
                 <p></p>
-
+<div class =  "titulo2">
                 <li> LISTAGEM DOS VIDEOS PRODUZIDOS:</li>
+              </div>
                 {{#each ourVideos}}
-                    <tr> &nbsp; título: {{name}} </tr>
-                    <tr> &nbsp; link: {{link}} </tr>
+<div class =  "video">
+      <div class ="video_img">
+      <a href="{{link}}"><img src="https://lh3.googleusercontent.com/-IXW3NovaiDo/WQYeC9eVuHI/AAAAAAAAAPQ/ZifS-VX-4kcej5nGy9SddvaHX5jNVP2JgCL0B/w530-d-h437-p-rw/images-01.png" width="130px"></a>
+    </div>
+<div class ="descripton">
+   <ul>
+                    <tr> &nbsp; Título: {{name}} </tr>
+                  <!--  <tr> &nbsp; Link: {{link}} </tr>-->
                     <tr> &nbsp; Descrição: {{description}} </tr>
                     <tr> &nbsp; Duração em Segundos: {{lengthInSecs}} </tr>
                     <tr> &nbsp; Plays: {{plays}} </tr>
                     <tr> &nbsp; Uploaded at: {{uploadedAt}} </tr>
-                    <p> -------------------------------------------------- </p>
+                    <p>  </p>
+                  </ul>
+                  </div>
+
+                </div>
+
                 {{/each}}
 
               {{/each}}
-          </ul>
+
     </div>
 </template>

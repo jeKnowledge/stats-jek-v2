@@ -1,0 +1,24 @@
+body{
+	 padding: 0;
+   margin-left: 0;
+	 margin-right: 0;
+}
+.textfac{
+	background-image: url("https://1.bp.blogspot.com/-g4Ij67ruVos/WQnHb0dt3fI/AAAAAAAAAQI/nzzrSu7KvmojJzYBUOQQRPgJPBGY4xxcQCLcB/s1600/Untitled-865653-01.jpg");
+  height: 400px;
+	width:100%;
+	background-position: bottom center;
+ 	background-repeat: no-repeat;
+	background-size:  cover;
+
+ }
+.textfac h1{
+	font-family: 'Hind', sans-serif;
+	font-size: 50px;
+  font-weight: 900;
+  margin: 0;
+  padding-top: 30px;
+	padding-left:30px;
+  text-align: left;
+	color: white;
+}
